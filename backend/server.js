@@ -17,13 +17,15 @@ const logger = require("./src/middlewares/logger.middleware");
 app.use(logger);
 
 
-const usersRoutes = require("./src/routes/user.route");
-app.use("/users", usersRoutes);
-
 app.get('/', (req, res) => {
     return res.send("<pre>Bienvenue sur NextRoute</pre>");
 });
 
+const usersRoutes = require("./src/routes/user.route");
+app.use("/users", usersRoutes);
+
+const jobsRoutes = require("./src/routes/job.route");
+app.use("/jobs", jobsRoutes);
 
 connectDB();
 

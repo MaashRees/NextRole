@@ -1,13 +1,10 @@
 const mongoose = require("mongoose");
 
 const contactSchema = new mongoose.Schema({
-  firstname: { 
+  name: { 
     type: String, 
-    trim: true 
-  },
-  lastname: { 
-    type: String, 
-    trim: true 
+    trim: true,
+    required: true
   },
   position: { 
     type: String, 
@@ -99,11 +96,12 @@ const jobSchema = new mongoose.Schema({
     enum: ['Présentiel', 'Hybride', 'Télétravail total'],
     default: 'Présentiel'
   },
-  contractType: { 
-    type: String, 
-    enum: ['CDI', 'CDD', 'Alternance', 'Stage', 'Freelance'],
-    required: true
-  },
+  contractType: [
+    { 
+      type: String, 
+      enum: ['CDI', 'CDD', 'Alternance', 'Stage', 'Freelance'] 
+    }
+  ],
   applicationSource: { 
     type: String, 
     trim: true 
