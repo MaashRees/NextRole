@@ -14,7 +14,7 @@ const applicationSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['En attente', 'Relancé', 'Entretien', 'Refusé', 'Accepté'],
+    enum: ['En attente', 'Postulé', 'Entretien', 'Test Technique', 'Offre', 'Refusé'],
     default: 'En attente'
   },
   appliedDate: { 

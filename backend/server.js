@@ -26,7 +26,8 @@ app.use("/users", usersRoutes);
 
 const jobsRoutes = require("./src/routes/job.route");
 app.use("/jobs", jobsRoutes);
-
+const applicationsRoutes = require("./src/routes/application.route");
+app.use("/applications", applicationsRoutes);
 connectDB();
 
 app.listen(PORT, () => {
