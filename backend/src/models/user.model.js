@@ -24,11 +24,13 @@ const userSchema = new mongoose.Schema(
       unique: true,
       lowercase: true,
       trim: true,
+      match: /^\S+@\S+\.\S+$/
     },
     password: {
       type: String,
       required: true,
       minLength: 8,
+      trim: true 
     },
     age: {
         type: Number,

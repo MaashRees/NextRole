@@ -120,9 +120,10 @@ exports.updatePassword = async (req, res) => {
             console.error(`[ERROR - USER :: CONTROLLER :: UPDATE_PASSWORD] : Ancien mot de passe incorrect - ${req.user.id} avec mot de passe ${oldPassword}`)
             return res.status(400).json({ error: true, message: "L'ancien mot de passe est incorrect." });
         }
-
-        user.password = await hashPassword(newPassword);
-        await user.save();
+        await User.updateOne(
+            {_id: user.id},
+            { $set: {password: await hashPassword(newPassword)}}
+        );
         console.log(`[INFO - USER :: CONTROLLER :: UPDATE_PASSWORD] : Mot de passe mis à jour - ${req.user.id}`)
         return res.status(200).json({ error: false, message: "Mot de passe modifié avec succès." });
     } catch (error) {
