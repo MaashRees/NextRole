@@ -16,7 +16,6 @@ const contactSchema = new mongoose.Schema({
   },
   email: { 
     type: String,
-    unique: true,
     lowercase: true,
     trim: true,
     match: /^\S+@\S+\.\S+$/,
@@ -26,9 +25,7 @@ const contactSchema = new mongoose.Schema({
     trim: true,
     match: /^(https:\/\/www\.linkedin\.com\/in\/)?[\w-]+\/?$/
   }
-}, 
-{ _id: false }
-);
+},);
 
 const jobSchema = new mongoose.Schema({
   title: { 

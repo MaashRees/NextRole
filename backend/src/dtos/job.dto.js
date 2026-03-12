@@ -50,8 +50,8 @@ const updateJobSchema = Joi.object({
   company: Joi.string().trim(),
   location: Joi.string().trim(),
   salary: Joi.object({
-    min: Joi.number().min(0),
-    max: Joi.number().min(0),
+    mini: Joi.number().min(0),
+    maxi: Joi.number().min(0),
     currency: Joi.string().uppercase().length(3)
   }),
   publishedDate: Joi.date(),
