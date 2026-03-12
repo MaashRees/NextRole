@@ -17,6 +17,9 @@ const logger = require("./src/middlewares/logger.middleware");
 app.use(logger);
 
 
+const usersRoutes = require("./src/routes/user.route");
+app.use("/users", usersRoutes);
+
 app.get('/', (req, res) => {
     return res.send("<pre>Bienvenue sur NextRoute</pre>");
 });
