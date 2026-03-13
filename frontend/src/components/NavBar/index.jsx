@@ -11,41 +11,29 @@ function NavBar() {
 
   return (
     <nav className="navbar">
-      <NavLink title="Home" to="/" className="nav-logo">
-        NextRole
-      </NavLink>
+      <NavLink to="/" className="nav-logo">NextRole</NavLink>
+      
       <div className="nav-links">
-        <NavLink to="/" className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}>
-          Accueil
-        </NavLink>
-        <NavLink to="/jobs" className="nav-link">
-          Offres
-        </NavLink>
-        <NavLink to="/applications" className="nav-link">
-          Candidatures
-        </NavLink>
+        <NavLink to="/" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>Accueil</NavLink>
+        <NavLink to="/jobs" className="nav-link">Offres</NavLink>
+        <NavLink to="/applications" className="nav-link">Candidatures</NavLink>
+        <NavLink to="/create" className="nav-link">Créer</NavLink>
       </div>
 
       <div className="right">
-        <button onClick={toggleTheme} className="nav-logo">
+        <button onClick={toggleTheme} className="theme-toggle">
           {theme === 'light' ? '🌙' : '☀️'}
         </button>
 
         {token ? (
-          <NavLink to="/profile" className="nav-btn">
-            <img 
-              src={avatarUrl} 
-              alt="Profil" 
-              className="nav-logo"
-            />
-          </NavLink>
+          <div className="user-menu">
+            <NavLink to="/profile">
+              <img src={avatarUrl} alt="Profil" className="nav-avatar" style={{ width: '35px', borderRadius: '50%' }} />
+            </NavLink>
+            <button onClick={handleLogout} className="logout-btn">Quitter</button>
+          </div>
         ) : (
-          <NavLink 
-            to="/login" 
-            className="nav-btn"
-          >
-            Connexion
-          </NavLink>
+          <NavLink to="/login" className="login-btn">Connexion</NavLink>
         )}
       </div>
     </nav>

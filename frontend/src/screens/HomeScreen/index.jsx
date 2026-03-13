@@ -1,4 +1,4 @@
-
+import { useEffect } from "react";
 const HomeScreen = () => {
   useEffect(() => {
     document.title = "Accueil - NextRole";
