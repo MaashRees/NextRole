@@ -2,14 +2,21 @@ const BASE_URL = import.meta.env.VITE_BACKEND_URI;
 
 class ApiService {
   async request(endpoint, options = {}) {
-    const token = localStorage.getItem('token');
+    const storedToken = localStorage.getItem('token');
+    let token = null;
+    
+    try {
+      token = storedToken ? JSON.parse(storedToken) : null;
+    } catch (e) {
+      token = storedToken;
+    }
     
     const headers = {
       'Content-Type': 'application/json',
       ...options.headers,
     };
 
-    if (token) {
+    if (isAuthenticated) {
       headers['Authorization'] = `Bearer ${token}`;
     }
 
