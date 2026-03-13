@@ -8,7 +8,14 @@ const connectDB = require("./config/database");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+
+const FRONTEND_HOST=process.env.FRONTEND_HOST || "localhost";
+const FRONTEND_PORT= process.env.FRONTEND_PORT || 5173;
+app.use(cors({
+  origin: `http://${FRONTEND_HOST}:${FRONTEND_PORT}`,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+  credentials: true
+}));
 
 const PORT = process.env.APP_PORT || 3000;
 const HOST = process.env.APP_HOST || "localhost";

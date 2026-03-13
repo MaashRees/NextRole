@@ -1,10 +1,9 @@
 import { useState } from 'react'
-import './Router.css'
 function Router() {
   const [count, setCount] = useState(0)
 
   return (
-    <div>
+    <div class="text-3xl font-bold underline">
       Bienvenue sur NextRoute
     </div>
   )
