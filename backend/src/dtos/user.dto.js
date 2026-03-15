@@ -14,6 +14,7 @@ const loginSchema = Joi.object({
 });
 
 const updateProfileSchema = Joi.object({
+    email: Joi.string().email(),
     firstname: Joi.string().min(2).max(20),
     lastname: Joi.string().min(2).max(20),
     age: Joi.number().min(18)

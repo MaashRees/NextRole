@@ -7,12 +7,10 @@ import JobScreen from './screens/JobScreen';
 import JobDetailsScreen from './screens/JobDetailsScreen';
 import ApplicationScreen from './screens/ApplicationScreen';
 import CreateScreen from './screens/CreateScreen';
-import useLocalStorage from './hooks/useLocalStorage';
+import { useAuth } from './contexts/AuthContext';
 
 function Router() {
-  const [token] = useLocalStorage('token', null);
-  const [user] = useLocalStorage('user', null);
-  const isAuthenticated = !!token && !!user;
+  const { isAuthenticated } = useAuth();
 
   return (
     <BrowserRouter>

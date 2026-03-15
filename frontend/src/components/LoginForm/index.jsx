@@ -1,30 +1,21 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import apiService from '../../services/ApiService';
-import useLocalStorage from '../../hooks/useLocalStorage';
+import { useAuth } from '../../contexts/AuthContext';
 
 const LoginForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [token, setToken] = useLocalStorage('token', null);
-  const [user, setUser] = useLocalStorage('user', null);
   
   const navigate = useNavigate();
-  const isAuthenticated = !!token && !!user;
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/profile');
-    }
-  }, [isAuthenticated]);
+  const { login } = useAuth();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
       const data = await apiService.login({ email, password });
-      setToken(data.token);
-      setUser(data.user); 
-      
+      login(data.token, data.user); 
+      navigate('/profile');
     } catch (err) {
       alert("Erreur : " + err.message);
     }
