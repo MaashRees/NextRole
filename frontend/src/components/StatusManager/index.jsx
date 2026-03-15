@@ -20,12 +20,11 @@ const StatusManager = ({ appId, status, onUpdate }) => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column' }}>
-      <label style={{ fontSize: '0.8rem', color: 'gray', marginBottom: '4px' }}>Statut :</label>
+      <label >Statut :</label>
       <select 
         value={status} 
         onChange={handleChange}
         disabled={isUpdating}
-        style={{ padding: '6px', borderRadius: '4px', border: '1px solid #ccc', backgroundColor: isUpdating ? '#f3f4f6' : 'white' }}
       >
         {statusList.map(s => <option key={s} value={s}>{s}</option>)}
       </select>

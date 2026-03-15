@@ -44,7 +44,7 @@ const ApplicationCreateForm = ({ onSuccess }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ maxWidth: '500px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+    <form onSubmit={handleSubmit} >
       <h3>Nouvelle candidature</h3>
       
       <div>
@@ -53,7 +53,6 @@ const ApplicationCreateForm = ({ onSuccess }) => {
           value={formData.jobId}
           onChange={e => setFormData({...formData, jobId: e.target.value})} 
           required
-          style={{ width: '100%', padding: '8px', marginTop: '5px' }}
         >
           <option value="">-- Choisir une offre --</option>
           {jobs.map(j => <option key={j._id} value={j._id}>{j.title} - {j.company}</option>)}
@@ -65,7 +64,6 @@ const ApplicationCreateForm = ({ onSuccess }) => {
         <select 
           value={formData.status} 
           onChange={e => setFormData({...formData, status: e.target.value})}
-          style={{ width: '100%', padding: '8px', marginTop: '5px' }}
         >
           <option value="En attente">En attente</option>
           <option value="Postulé">Postulé</option>
@@ -82,14 +80,12 @@ const ApplicationCreateForm = ({ onSuccess }) => {
           placeholder="Ex: Contact RH, lien du test technique..." 
           value={formData.notes}
           onChange={e => setFormData({...formData, notes: e.target.value})} 
-          style={{ width: '100%', padding: '8px', marginTop: '5px', minHeight: '80px' }}
         />
       </div>
       
       <button 
         type="submit" 
         disabled={loading}
-        style={{ backgroundColor: '#38bdf8', color: 'white', padding: '12px', border: 'none', borderRadius: '5px', fontWeight: 'bold', cursor: 'pointer' }}
       >
         {loading ? "Enregistrement..." : "Enregistrer la candidature"}
       </button>

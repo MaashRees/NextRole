@@ -4,6 +4,7 @@ import apiService from '../../services/ApiService';
 import JobEditForm from '../../components/JobEditForm';
 import TagManager from '../../components/TagManager';
 import ContactManager from '../../components/ContactManager';
+import Layout from '../../components/Layout';
 
 const JobDetailsScreen = () => {
   const { id } = useParams();
@@ -41,11 +42,17 @@ const JobDetailsScreen = () => {
     }
   };
 
-  if (loading) return <p>Chargement des détails du job...</p>;
-  if (error) return <p style={{ color: 'red' }}>Erreur : {error}</p>;
-  if (!job) return <p>Job introuvable.</p>;
-
+  if (loading) {
+    return (<Layout><p>Chargement des détails du job...</p></Layout>);
+  }
+  if (error) {
+    return (<Layout><p style={{ color: 'red' }}>Erreur : {error}</p></Layout>);
+  }
+  if (!job) {
+    return (<Layout><p>Job introuvable.</p></Layout>);
+  }
   return (
+    <Layout>
     <div className="job-details-container">
       <button onClick={() => navigate('/jobs')} style={{ marginBottom: '20px' }}>
         ← Retour à la liste
@@ -80,19 +87,20 @@ const JobDetailsScreen = () => {
         </div>
       )}
 
-      <hr style={{ margin: '30px 0' }} />
+      <hr/>
       <TagManager 
         jobId={job._id} 
         initialTags={job.tags || []} 
         onUpdate={(newTags) => setJob({...job, tags: newTags})} 
       />
 
-      <hr style={{ margin: '30px 0' }} />
+      <hr />
       <ContactManager 
         jobId={job._id} 
         initialContacts={job.contacts || []} 
       />
     </div>
+    </Layout>
   );
 };
 

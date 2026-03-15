@@ -28,36 +28,34 @@ const FollowUpManager = ({ appId, followUps, onUpdate }) => {
   };
 
   return (
-    <div style={{ marginTop: '15px', padding: '15px', backgroundColor: '#f9fafb', borderRadius: '6px' }}>
-      <h4 style={{ margin: '0 0 10px 0' }}>Historique des relances</h4>
+    <div >
+      <h4>Historique des relances</h4>
       
       {followUps?.dates?.length > 0 ? (
-        <ul style={{ paddingLeft: '20px', fontSize: '0.9rem' }}>
+        <ul >
           {followUps.dates.map((d, i) => (
             <li key={i}>Relancé le : <strong>{new Date(d).toLocaleDateString()}</strong></li>
           ))}
         </ul>
-      ) : <p style={{ fontSize: '0.9rem', color: 'gray' }}>Aucune relance effectuée.</p>}
+      ) : <p >Aucune relance effectuée.</p>}
 
-      <p style={{ fontSize: '0.9rem' }}><strong>Notes de suivi :</strong> {followUps?.notes || "Aucune note globale"}</p>
+      <p ><strong>Notes de suivi :</strong> {followUps?.notes || "Aucune note globale"}</p>
 
       {!isAdding ? (
         <button 
           onClick={() => setIsAdding(true)}
-          style={{ marginTop: '10px', padding: '6px 12px', fontSize: '0.8rem', cursor: 'pointer' }}
         >
           + Ajouter une relance
         </button>
       ) : (
-        <form onSubmit={handleAddFollowUp} style={{ marginTop: '15px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <form onSubmit={handleAddFollowUp} >
           <textarea 
             placeholder="Note concernant cette relance..." 
             value={note}
             onChange={(e) => setNote(e.target.value)}
-            style={{ width: '100%', padding: '8px', minHeight: '60px' }}
           />
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <button type="submit" disabled={loading} style={{ backgroundColor: '#4CAF50', color: 'white', padding: '6px 12px', border: 'none', borderRadius: '4px' }}>
+          <div >
+            <button type="submit" disabled={loading} >
               {loading ? "Enregistrement..." : "Valider"}
             </button>
             <button type="button" onClick={() => setIsAdding(false)} style={{ padding: '6px 12px' }}>

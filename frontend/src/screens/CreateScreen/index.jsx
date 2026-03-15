@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import JobCreateForm from '../../components/JobCreateForm';
 import ApplicationCreateForm from '../../components/ApplicationCreateForm';
+import Layout from '../../components/Layout';
 
 const CreateScreen = () => {
   const [activeTab, setActiveTab] = useState('job');
 
   return (
+    <Layout>
     <div>
       <h1>Centre de Création</h1>
-      <div style={{ marginBottom: '20px' }}>
+      <div>
         <button 
           onClick={() => setActiveTab('job')}
           style={{ fontWeight: activeTab === 'job' ? 'bold' : 'normal' }}
@@ -31,6 +33,7 @@ const CreateScreen = () => {
         <ApplicationCreateForm />
       )}
     </div>
+    </Layout>
   );
 };
 

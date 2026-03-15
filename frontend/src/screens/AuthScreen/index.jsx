@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import LoginForm from '../../components/LoginForm/index';
 import RegisterForm from '../../components/RegisterForm/index';
+import Layout from '../../components/Layout';
 
 
 const AuthScreen = () => {
   const [isLogin, setIsLogin] = useState(true);
 
   return (
+    <Layout>
     <div>
       <h1>{isLogin ? 'Connexion' : 'Inscription'}</h1>
       
@@ -23,6 +25,7 @@ const AuthScreen = () => {
         </button>
       </p>
     </div>
+    </Layout>
   );
 };
 

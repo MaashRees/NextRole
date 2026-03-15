@@ -18,11 +18,11 @@ const ApplicationItem = ({ app, onDelete }) => {
   };
 
   return (
-    <div style={{ border: '1px solid #ccc', padding: '15px', margin: '15px 0', borderRadius: '8px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+    <div>
+      <div >
         <div>
-          <h3 style={{ margin: '0 0 10px 0' }}>{currentApp.job?.title || "Offre sans titre"}</h3>
-          <p style={{ margin: '0 0 15px 0', color: 'gray' }}>{currentApp.job?.company || "Entreprise inconnue"}</p>
+          <h3 >{currentApp.job?.title || "Offre sans titre"}</h3>
+          <p >{currentApp.job?.company || "Entreprise inconnue"}</p>
         </div>
         
         <StatusManager 
@@ -32,8 +32,8 @@ const ApplicationItem = ({ app, onDelete }) => {
         />
       </div>
 
-      <p style={{ fontSize: '0.9rem' }}>Postulé le : {new Date(currentApp.appliedDate).toLocaleDateString()}</p>
-      {currentApp.notes && <p style={{ fontSize: '0.9rem' }}><strong>Notes :</strong> {currentApp.notes}</p>}
+      <p >Postulé le : {new Date(currentApp.appliedDate).toLocaleDateString()}</p>
+      {currentApp.notes && <p ><strong>Notes :</strong> {currentApp.notes}</p>}
 
       <FollowUpManager 
         appId={currentApp._id}
@@ -41,16 +41,15 @@ const ApplicationItem = ({ app, onDelete }) => {
         onUpdate={(newFollowUps) => setCurrentApp({...currentApp, followUps: newFollowUps})}
       />
 
-      <div style={{ marginTop: '20px', borderTop: '1px solid #eee', paddingTop: '15px' }}>
+      <div >
         <button 
           onClick={() => navigate(`/jobs/${currentApp.job?._id}`)}
-          style={{ padding: '8px 12px', cursor: 'pointer', borderRadius: '4px', border: '1px solid #ccc', background: 'white' }}
+          
         >
           Voir l'offre associée
         </button>
         <button 
           onClick={handleDelete} 
-          style={{ color: '#ef4444', border: '1px solid #ef4444', background: 'white', padding: '8px 12px', marginLeft: '10px', borderRadius: '4px', cursor: 'pointer' }}
         >
           Supprimer
         </button>

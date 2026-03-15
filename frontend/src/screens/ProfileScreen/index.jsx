@@ -4,6 +4,7 @@ import apiService from '../../services/ApiService';
 import { useAuth } from '../../contexts/AuthContext';
 import ProfileDetails from '../../components/ProfileDetails';
 import ProfileEditForm from '../../components/ProfileEditForm';
+import Layout from '../../components/Layout';
 
 const ProfileScreen = () => {
   const { logout } = useAuth();
@@ -79,10 +80,15 @@ const ProfileScreen = () => {
     }
   };
 
-  if (loading) return <p>Chargement de votre profil...</p>;
-  if (error) return <p style={{ color: 'red' }}>Erreur : {error}</p>;
+  if (loading){
+    return (<Layout><p>Chargement de votre profil...</p></Layout>);
+  }
+  if (error) {
+    return (<Layout><p style={{ color: 'red' }}>Erreur : {error}</p></Layout>);
+  }
 
   return (
+    <Layout>
     <div className="profile-container">
       <h2>Mon Profil</h2>
       
@@ -101,22 +107,23 @@ const ProfileScreen = () => {
         />
       )}
 
-      <hr style={{ margin: '30px 0' }} />
+      <hr  />
       
       <button 
         onClick={handleLogout} 
-        style={{ color: '#ef4444', border: '1px solid #ef4444', backgroundColor: 'transparent', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer', marginRight: '10px' }}
+        
       >
         Déconnexion
       </button>
       
       <button 
         onClick={handleDeleteAccount} 
-        style={{ color: 'white', backgroundColor: '#ef4444', border: 'none', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer' }}
+        
       >
         Supprimer mon compte
       </button>
     </div>
+    </Layout>
   );
 };
 

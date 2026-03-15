@@ -33,16 +33,15 @@ const ContactManager = ({ jobId, initialContacts }) => {
   return (
     <div>
       <h4>Contacts</h4>
-      <ul style={{ listStyle: 'none', padding: 0 }}>
+      <ul >
         {contacts.map((c, i) => (
-          <li key={c._id || i} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', padding: '10px', border: '1px solid #ddd' }}>
+          <li key={c._id || i} >
             <div>
               <strong>{c.name}</strong> {c.position && `(${c.position})`} <br />
               <small>{c.email}</small>
             </div>
             <button 
               onClick={() => handleRemoveContact(c._id)} 
-              style={{ color: 'red', border: 'none', background: 'transparent', cursor: 'pointer' }}
             >
               Supprimer
             </button>
@@ -53,7 +52,7 @@ const ContactManager = ({ jobId, initialContacts }) => {
       {!showForm ? (
         <button onClick={() => setShowForm(true)}>+ Ajouter un contact</button>
       ) : (
-        <form onSubmit={handleAddContact} style={{ display: 'flex', flexDirection: 'column', gap: '5px', marginTop: '10px' }}>
+        <form onSubmit={handleAddContact} >
           <input placeholder="Nom" value={newContact.name} onChange={e => setNewContact({...newContact, name: e.target.value})} required />
           <input placeholder="Poste" value={newContact.position} onChange={e => setNewContact({...newContact, position: e.target.value})} />
           <input placeholder="Email" value={newContact.email} onChange={e => setNewContact({...newContact, email: e.target.value})} />

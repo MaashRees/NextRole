@@ -3,7 +3,7 @@
 const ProfileEditForm = ({ formData, setFormData, onSubmit, onCancel }) => {
   return (
     <form onSubmit={onSubmit} className="profile-form">
-      <div style={{ marginBottom: '10px' }}>
+      <div>
         <label><strong>Email :</strong> </label>
         <input 
           placeholder="Votre mail"
@@ -12,7 +12,7 @@ const ProfileEditForm = ({ formData, setFormData, onSubmit, onCancel }) => {
         />
       </div>
 
-      <div style={{ marginBottom: '10px' }}>
+      <div >
         <label><strong>Prénom : </strong></label>
         <input 
           placeholder="Votre prénom"
@@ -21,7 +21,7 @@ const ProfileEditForm = ({ formData, setFormData, onSubmit, onCancel }) => {
         />
       </div>
       
-      <div style={{ marginBottom: '10px' }}>
+      <div >
         <label><strong>Nom : </strong></label>
         <input 
           placeholder="Votre nom"
@@ -30,7 +30,7 @@ const ProfileEditForm = ({ formData, setFormData, onSubmit, onCancel }) => {
         />
       </div>
       
-      <div style={{ marginBottom: '15px' }}>
+      <div>
         <label><strong>Âge : </strong></label>
         <input 
           type="number"
@@ -41,7 +41,7 @@ const ProfileEditForm = ({ formData, setFormData, onSubmit, onCancel }) => {
       </div>
 
       <div className="form-actions">
-        <button type="submit" style={{ marginRight: '10px', backgroundColor: '#4CAF50', color: 'white' }}>
+        <button type="submit" >
           Enregistrer les modifications
         </button>
         <button type="button" onClick={onCancel}>

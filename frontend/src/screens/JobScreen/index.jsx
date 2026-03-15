@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import apiService from '../../services/ApiService';
 import { useAuth } from '../../contexts/AuthContext';
+import Layout from '../../components/Layout';
 
 const JobScreen = () => {
   const { user } = useAuth();
@@ -24,12 +25,17 @@ const JobScreen = () => {
     fetchJobs();
   }, []);
 
-  if (loading) return <p>Chargement des offres...</p>;
-  if (error) return <p style={{ color: 'red' }}>Erreur : {error}</p>;
+  if (loading){
+    return (<Layout><p>Chargement des offres...</p></Layout>);
+  }
+  if (error) {
+    return (<Layout><p style={{ color: 'red' }}>Erreur : {error}</p></Layout>);
+  }
 
   return (
+    <Layout>
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+      <div>
         <h1>Offres d'emploi</h1>
       <button 
           onClick={() => navigate('/create')}
@@ -48,9 +54,9 @@ const JobScreen = () => {
         </button>
       </div>
       {jobs.length === 0 ? <p>Aucun job trouvé.</p> : (
-        <ul style={{ listStyle: 'none', padding: 0 }}>
+        <ul >
           {jobs.map(job => (
-            <li key={job._id} style={{ border: '1px solid #ccc', margin: '10px 0', padding: '15px', borderRadius: '8px' }}>
+            <li key={job._id} >
               <h3>{job.title}</h3>
               <p><strong>Entreprise :</strong> {job.company}</p>
               <p><strong>Lieu :</strong> {job.location}</p>
@@ -58,7 +64,7 @@ const JobScreen = () => {
               
               <NavLink 
                 to={`/jobs/${job._id}`} 
-                style={{ display: 'inline-block', marginTop: '10px', color: '#007BFF', textDecoration: 'none' }}
+                
               >
                 Voir les détails →
               </NavLink>
@@ -67,6 +73,7 @@ const JobScreen = () => {
         </ul>
       )}
     </div>
+    </Layout>
   );
 };
 
