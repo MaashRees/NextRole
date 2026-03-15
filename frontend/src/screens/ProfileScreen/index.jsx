@@ -89,40 +89,31 @@ const ProfileScreen = () => {
 
   return (
     <Layout>
-    <div className="profile-container">
-      <h2>Mon Profil</h2>
-      
-      {/* Affichage conditionnel avec tes nouveaux composants découpés */}
-      {!isEditing ? (
-        <ProfileDetails 
-          user={fullUser} 
-          onEditClick={() => setIsEditing(true)} 
-        />
-      ) : (
-        <ProfileEditForm 
-          formData={formData} 
-          setFormData={setFormData} 
-          onSubmit={handleUpdate} 
-          onCancel={() => setIsEditing(false)} 
-        />
-      )}
+      <div className="profile-container">
+        <h2>Mon Profil</h2>
+        
+        {!isEditing ? (
+          <ProfileDetails user={fullUser} onEditClick={() => setIsEditing(true)} />
+        ) : (
+          <ProfileEditForm 
+            formData={formData} 
+            setFormData={setFormData} 
+            onSubmit={handleUpdate} 
+            onCancel={() => setIsEditing(false)} 
+          />
+        )}
 
-      <hr  />
-      
-      <button 
-        onClick={handleLogout} 
+        <hr />
         
-      >
-        Déconnexion
-      </button>
-      
-      <button 
-        onClick={handleDeleteAccount} 
-        
-      >
-        Supprimer mon compte
-      </button>
-    </div>
+        <div className="form-actions">
+          <button className="btn btn-outline" onClick={handleLogout}>
+            Déconnexion
+          </button>
+          <button className="btn btn-danger" onClick={handleDeleteAccount}>
+            Supprimer mon compte
+          </button>
+        </div>
+      </div>
     </Layout>
   );
 };

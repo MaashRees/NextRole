@@ -31,31 +31,29 @@ const ApplicationScreen = () => {
     </Layout>
   }
   return (
-    <Layout>
-    <div>
-      <div>
-        <h1>Mes Candidatures</h1>
-        <button 
-          onClick={() => navigate('/create')}
-        >
-          + Nouvelle Candidature
-        </button>
-      </div>
-
-      {applications.length === 0 ? (
-        <p>Aucune candidature enregistrée pour le moment.</p>
-      ) : (
-        <div>
-          {applications.map(app => (
-            <ApplicationItem 
-              key={app._id} 
-              app={app} 
-              onDelete={(id) => setApplications(prev => prev.filter(a => a._id !== id))}
-            />
-          ))}
+        <Layout>
+      <div className="applications-container">
+        <div className="applications-header">
+          <h1>Mes Candidatures</h1>
+          <button className="btn btn-primary" onClick={() => navigate('/create')}>
+            + Nouvelle Candidature
+          </button>
         </div>
-      )}
-    </div>
+
+        {applications.length === 0 ? (
+          <p>Aucune candidature enregistrée pour le moment.</p>
+        ) : (
+          <div className="application-list">
+            {applications.map(app => (
+              <ApplicationItem 
+                key={app._id} 
+                app={app} 
+                onDelete={(id) => setApplications(prev => prev.filter(a => a._id !== id))}
+              />
+            ))}
+          </div>
+        )}
+      </div>
     </Layout>
   );
 };

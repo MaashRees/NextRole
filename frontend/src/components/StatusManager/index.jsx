@@ -19,8 +19,8 @@ const StatusManager = ({ appId, status, onUpdate }) => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column' }}>
-      <label >Statut :</label>
+    <div className="status-manager">
+      <label>Statut :</label>
       <select 
         value={status} 
         onChange={handleChange}

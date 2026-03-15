@@ -9,22 +9,28 @@ const AuthScreen = () => {
 
   return (
     <Layout>
-    <div>
-      <h1>{isLogin ? 'Connexion' : 'Inscription'}</h1>
+    <div className="auth-container">
+        <h1 className="text-center">{isLogin ? 'Connexion' : 'Inscription'}</h1>
       
-      {isLogin ? (
-        <LoginForm />
-      ) : (
-        <RegisterForm onToggle={() => setIsLogin(true)} />
-      )}
+          <div className="auth-tabs">
+          <button 
+            className={isLogin ? 'active' : ''}
+            onClick={() => setIsLogin(true)}
+          >
+            Connexion
+          </button>
+          <button 
+            className={!isLogin ? 'active' : ''}
+            onClick={() => setIsLogin(false)}
+          >
+            Inscription
+          </button>
+        </div>
 
-      <p>
-        {isLogin ? "Nouveau ici ?" : "Déjà un compte ?"}
-        <button onClick={() => setIsLogin(!isLogin)}>
-          {isLogin ? "Créer un compte" : "Se connecter"}
-        </button>
-      </p>
-    </div>
+      <div className="auth-form">
+          {isLogin ? <LoginForm /> : <RegisterForm onToggle={() => setIsLogin(true)} />}
+        </div>
+      </div>
     </Layout>
   );
 };

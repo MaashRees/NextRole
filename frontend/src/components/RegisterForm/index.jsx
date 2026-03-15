@@ -49,14 +49,16 @@ const RegisterForm = ({ onToggle }) => {
 
   return (
     <form onSubmit={handleSubmit}>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {error && <p className="error-message" style={{ color: 'red' }}>{error}</p>}
       <input name="firstname" placeholder="Prénom" onChange={handleChange} required />
       <input name="lastname" placeholder="Nom" onChange={handleChange} required />
       <input name="email" type="email" placeholder="Email" onChange={handleChange} required />
       <input name="age" type="number" placeholder="Âge (min 18)" onChange={handleChange} required />
       <input name="password" type="password" placeholder="Mot de passe (min 8)" onChange={handleChange} required />
       <input name="confirmPassword" type="password" placeholder="Confirmer mot de passe" onChange={handleChange} required />
-      <button type="submit">S'inscrire</button>
+      <div className="form-actions">
+        <button type="submit" className="btn btn-primary">S'inscrire</button>
+      </div>
     </form>
   );
 };

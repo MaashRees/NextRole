@@ -33,46 +33,40 @@ const JobScreen = () => {
   }
 
   return (
-    <Layout>
-    <div>
-      <div>
-        <h1>Offres d'emploi</h1>
-      <button 
-          onClick={() => navigate('/create')}
-          style={{ 
-            backgroundColor: '#38bdf8', 
-            color: 'white', 
-            padding: '10px 20px', 
-            border: 'none', 
-            borderRadius: '6px', 
-            cursor: 'pointer', 
-            fontWeight: 'bold',
-            fontSize: '1rem'
-          }}
-        >
-          + Ajouter une offre
-        </button>
+        <Layout>
+      <div className="jobs-container">
+        <div className="jobs-header">
+          <h1>Offres d'emploi</h1>
+          <button 
+            className="btn btn-primary"
+            onClick={() => navigate('/create')}
+          >
+            + Ajouter une offre
+          </button>
+        </div>
+
+        {jobs.length === 0 ? (
+          <p>Aucun job trouvé.</p>
+        ) : (
+          <ul className="job-list">
+            {jobs.map(job => (
+              <li key={job._id} className="job-card">
+                <h3>{job.title}</h3>
+                <p><strong>Entreprise :</strong> {job.company}</p>
+                <p><strong>Lieu :</strong> {job.location}</p>
+                <p><strong>Type :</strong> {job.contractType}</p>
+                <NavLink 
+                  to={`/jobs/${job._id}`} 
+                  className="btn btn-outline btn-sm"
+                  style={{ alignSelf: 'flex-start' }} // conservé si nécessaire, mais peut être supprimé si la classe suffit
+                >
+                  Voir les détails →
+                </NavLink>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
-      {jobs.length === 0 ? <p>Aucun job trouvé.</p> : (
-        <ul >
-          {jobs.map(job => (
-            <li key={job._id} >
-              <h3>{job.title}</h3>
-              <p><strong>Entreprise :</strong> {job.company}</p>
-              <p><strong>Lieu :</strong> {job.location}</p>
-              <p><strong>Type :</strong> {job.contractType}</p>
-              
-              <NavLink 
-                to={`/jobs/${job._id}`} 
-                
-              >
-                Voir les détails →
-              </NavLink>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
     </Layout>
   );
 };

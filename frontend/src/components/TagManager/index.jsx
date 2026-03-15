@@ -26,15 +26,23 @@ const TagManager = ({ jobId, initialTags, onUpdate }) => {
   };
 
   return (
-    <div>
+    <div className="tag-manager">
       <h4>Tags</h4>
-      {tags.map(tag => (
-        <span key={tag}>
-          {tag} <button onClick={() => handleRemove(tag)}>x</button>
-        </span>
-      ))}
-      <input value={newTag} onChange={(e) => setNewTag(e.target.value)} placeholder="Nouveau tag" />
-      <button onClick={handleAdd}>Ajouter</button>
+      <div className="tag-list">
+        {tags.map(tag => (
+          <span key={tag} className="tag-item">
+            {tag} <button onClick={() => handleRemove(tag)}>×</button>
+          </span>
+        ))}
+      </div>
+      <div className="tag-input">
+        <input 
+          value={newTag} 
+          onChange={(e) => setNewTag(e.target.value)} 
+          placeholder="Nouveau tag" 
+        />
+        <button className="btn btn-primary" onClick={handleAdd}>Ajouter</button>
+      </div>
     </div>
   );
 };

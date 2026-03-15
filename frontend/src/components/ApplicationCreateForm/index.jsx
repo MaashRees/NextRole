@@ -44,7 +44,7 @@ const ApplicationCreateForm = ({ onSuccess }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} >
+        <form onSubmit={handleSubmit} className="app-form">
       <h3>Nouvelle candidature</h3>
       
       <div>
@@ -83,12 +83,11 @@ const ApplicationCreateForm = ({ onSuccess }) => {
         />
       </div>
       
-      <button 
-        type="submit" 
-        disabled={loading}
-      >
-        {loading ? "Enregistrement..." : "Enregistrer la candidature"}
-      </button>
+      <div className="form-actions">
+        <button type="submit" className="btn btn-primary" disabled={loading}>
+          {loading ? "Enregistrement..." : "Enregistrer la candidature"}
+        </button>
+      </div>
     </form>
   );
 };

@@ -18,11 +18,11 @@ const ApplicationItem = ({ app, onDelete }) => {
   };
 
   return (
-    <div>
-      <div >
+        <div className="application-card">
+      <div className="application-header">
         <div>
-          <h3 >{currentApp.job?.title || "Offre sans titre"}</h3>
-          <p >{currentApp.job?.company || "Entreprise inconnue"}</p>
+          <h3>{currentApp.job?.title || "Offre sans titre"}</h3>
+          <p>{currentApp.job?.company || "Entreprise inconnue"}</p>
         </div>
         
         <StatusManager 
@@ -32,8 +32,8 @@ const ApplicationItem = ({ app, onDelete }) => {
         />
       </div>
 
-      <p >Postulé le : {new Date(currentApp.appliedDate).toLocaleDateString()}</p>
-      {currentApp.notes && <p ><strong>Notes :</strong> {currentApp.notes}</p>}
+      <p>Postulé le : {new Date(currentApp.appliedDate).toLocaleDateString()}</p>
+      {currentApp.notes && <p><strong>Notes :</strong> {currentApp.notes}</p>}
 
       <FollowUpManager 
         appId={currentApp._id}
@@ -41,15 +41,16 @@ const ApplicationItem = ({ app, onDelete }) => {
         onUpdate={(newFollowUps) => setCurrentApp({...currentApp, followUps: newFollowUps})}
       />
 
-      <div >
+      <div className="application-actions">
         <button 
+          className="btn btn-outline btn-sm"
           onClick={() => navigate(`/jobs/${currentApp.job?._id}`)}
-          
         >
           Voir l'offre associée
         </button>
         <button 
-          onClick={handleDelete} 
+          className="btn btn-danger btn-sm"
+          onClick={handleDelete}
         >
           Supprimer
         </button>

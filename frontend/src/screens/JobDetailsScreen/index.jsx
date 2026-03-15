@@ -52,54 +52,58 @@ const JobDetailsScreen = () => {
     return (<Layout><p>Job introuvable.</p></Layout>);
   }
   return (
-    <Layout>
-    <div className="job-details-container">
-      <button onClick={() => navigate('/jobs')} style={{ marginBottom: '20px' }}>
-        ← Retour à la liste
-      </button>
-      
-      {isEditing ? (
-        <JobEditForm 
-          job={job} 
-          onCancel={() => setIsEditing(false)} 
-          onUpdate={(updatedJob) => { 
-            const newData = updatedJob.data ? updatedJob.data : updatedJob;
-            setJob(newData); 
-            setIsEditing(false); 
-          }} 
+        <Layout>
+      <div className="job-details-container">
+        <button className="btn btn-outline mb-2" onClick={() => navigate('/jobs')}>
+          ← Retour à la liste
+        </button>
+        
+        {isEditing ? (
+          <JobEditForm 
+            job={job} 
+            onCancel={() => setIsEditing(false)} 
+            onUpdate={(updatedJob) => { 
+              const newData = updatedJob.data ? updatedJob.data : updatedJob;
+              setJob(newData); 
+              setIsEditing(false); 
+            }} 
+          />
+        ) : (
+          <div className="job-info">
+            <h1>{job.title}</h1>
+            <h2>{job.company} - {job.location}</h2>
+            
+            <div className="form-actions" style={{ margin: '15px 0' }}>
+              <button className="btn btn-primary" onClick={() => setIsEditing(true)}>
+                Modifier les infos
+              </button>
+              <button className="btn btn-danger" onClick={handleDelete}>
+                Supprimer l'offre
+              </button>
+            </div>
+            
+            <hr />
+            <div className="job-meta">
+              <p><strong>Contrat :</strong> {job.contractType}</p>
+              <p><strong>Rythme :</strong> {job.workRhythm}</p>
+              <p><strong>Salaire :</strong> {job.salary?.mini} - {job.salary?.maxi} {job.salary?.currency}</p>
+            </div>
+          </div>
+        )}
+
+        <hr/>
+        <TagManager 
+          jobId={job._id} 
+          initialTags={job.tags || []} 
+          onUpdate={(newTags) => setJob({...job, tags: newTags})} 
         />
-      ) : (
-        <div className="job-info">
-          <h1>{job.title}</h1>
-          <h2>{job.company} - {job.location}</h2>
-          
-          <div style={{ margin: '15px 0', display: 'flex', gap: '10px' }}>
-            <button onClick={() => setIsEditing(true)}>Modifier les infos</button>
-            <button onClick={handleDelete} style={{ color: 'red' }}>Supprimer l'offre</button>
-          </div>
-          
-          <hr />
-          <div style={{ marginTop: '15px' }}>
-            <p><strong>Contrat :</strong> {job.contractType}</p>
-            <p><strong>Rythme :</strong> {job.workRhythm}</p>
-            <p><strong>Salaire :</strong> {job.salary?.mini} - {job.salary?.maxi} {job.salary?.currency}</p>
-          </div>
-        </div>
-      )}
 
-      <hr/>
-      <TagManager 
-        jobId={job._id} 
-        initialTags={job.tags || []} 
-        onUpdate={(newTags) => setJob({...job, tags: newTags})} 
-      />
-
-      <hr />
-      <ContactManager 
-        jobId={job._id} 
-        initialContacts={job.contacts || []} 
-      />
-    </div>
+        <hr />
+        <ContactManager 
+          jobId={job._id} 
+          initialContacts={job.contacts || []} 
+        />
+      </div>
     </Layout>
   );
 };

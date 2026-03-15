@@ -28,37 +28,40 @@ const FollowUpManager = ({ appId, followUps, onUpdate }) => {
   };
 
   return (
-    <div >
+        <div className="followup-manager">
       <h4>Historique des relances</h4>
       
       {followUps?.dates?.length > 0 ? (
-        <ul >
+        <ul className="followup-list">
           {followUps.dates.map((d, i) => (
-            <li key={i}>Relancé le : <strong>{new Date(d).toLocaleDateString()}</strong></li>
+            <li key={i} className="followup-item">
+              Relancé le : <strong>{new Date(d).toLocaleDateString()}</strong>
+            </li>
           ))}
         </ul>
-      ) : <p >Aucune relance effectuée.</p>}
+      ) : <p>Aucune relance effectuée.</p>}
 
-      <p ><strong>Notes de suivi :</strong> {followUps?.notes || "Aucune note globale"}</p>
+      <p><strong>Notes de suivi :</strong> {followUps?.notes || "Aucune note globale"}</p>
 
       {!isAdding ? (
         <button 
+          className="btn btn-outline"
           onClick={() => setIsAdding(true)}
         >
           + Ajouter une relance
         </button>
       ) : (
-        <form onSubmit={handleAddFollowUp} >
+        <form onSubmit={handleAddFollowUp} className="followup-form">
           <textarea 
             placeholder="Note concernant cette relance..." 
             value={note}
             onChange={(e) => setNote(e.target.value)}
           />
-          <div >
-            <button type="submit" disabled={loading} >
+          <div className="form-actions">
+            <button type="submit" className="btn btn-primary" disabled={loading}>
               {loading ? "Enregistrement..." : "Valider"}
             </button>
-            <button type="button" onClick={() => setIsAdding(false)} style={{ padding: '6px 12px' }}>
+            <button type="button" className="btn btn-outline" onClick={() => setIsAdding(false)}>
               Annuler
             </button>
           </div>

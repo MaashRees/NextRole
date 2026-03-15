@@ -1,6 +1,4 @@
-import { Outlet } from 'react-router-dom';
 import { useTheme } from '../../contexts/ThemeContext';
-
 import NavBar from '../Navbar/index';
 
 const Layout = ({ children }) => {

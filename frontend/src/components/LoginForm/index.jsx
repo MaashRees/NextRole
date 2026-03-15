@@ -22,7 +22,7 @@ const LoginForm = () => {
   };
 
   return (
-    <form onSubmit={handleLogin}>
+        <form onSubmit={handleLogin}>
       <input 
         type="email" 
         placeholder="Email" 
@@ -37,7 +37,9 @@ const LoginForm = () => {
         onChange={(e) => setPassword(e.target.value)} 
         required 
       />
-      <button type="submit">Se connecter</button>
+      <div className="form-actions">
+        <button type="submit" className="btn btn-primary">Se connecter</button>
+      </div>
     </form>
   );
 };

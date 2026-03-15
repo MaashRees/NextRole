@@ -36,7 +36,7 @@ function NavBar() {
             <button onClick={() => {
               logout();
               navigate("/");
-            }} className="logout-btn">Quitter</button>
+            }} className="logout-btn">Déconnecter</button>
           </div>
         ) : (
           <NavLink to="/login" className="login-btn">Connexion</NavLink>

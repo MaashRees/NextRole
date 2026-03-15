@@ -31,35 +31,40 @@ const ContactManager = ({ jobId, initialContacts }) => {
   };
 
   return (
-    <div>
+        <div className="contact-manager">
       <h4>Contacts</h4>
-      <ul >
-        {contacts.map((c, i) => (
-          <li key={c._id || i} >
-            <div>
-              <strong>{c.name}</strong> {c.position && `(${c.position})`} <br />
-              <small>{c.email}</small>
-            </div>
-            <button 
-              onClick={() => handleRemoveContact(c._id)} 
-            >
-              Supprimer
-            </button>
-          </li>
-        ))}
-      </ul>
+      {contacts.length > 0 ? (
+        <ul className="contact-list">
+          {contacts.map((c, i) => (
+            <li key={c._id || i} className="contact-item">
+              <div>
+                <strong>{c.name}</strong> {c.position && `(${c.position})`} <br />
+                <small>{c.email}</small>
+              </div>
+              <button 
+                className="btn btn-danger btn-sm"
+                onClick={() => handleRemoveContact(c._id)} 
+              >
+                Supprimer
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p>Aucun contact enregistré.</p>
+      )}
       
       {!showForm ? (
-        <button onClick={() => setShowForm(true)}>+ Ajouter un contact</button>
+        <button className="btn btn-outline" onClick={() => setShowForm(true)}>+ Ajouter un contact</button>
       ) : (
-        <form onSubmit={handleAddContact} >
+        <form onSubmit={handleAddContact} className="contact-form">
           <input placeholder="Nom" value={newContact.name} onChange={e => setNewContact({...newContact, name: e.target.value})} required />
           <input placeholder="Poste" value={newContact.position} onChange={e => setNewContact({...newContact, position: e.target.value})} />
           <input placeholder="Email" value={newContact.email} onChange={e => setNewContact({...newContact, email: e.target.value})} />
           <input placeholder="LinkedIn" value={newContact.linkedin} onChange={e => setNewContact({...newContact, linkedin: e.target.value})} />
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <button type="submit">Valider</button>
-            <button type="button" onClick={() => setShowForm(false)}>Annuler</button>
+          <div className="form-actions">
+            <button type="submit" className="btn btn-primary">Valider</button>
+            <button type="button" className="btn btn-outline" onClick={() => setShowForm(false)}>Annuler</button>
           </div>
         </form>
       )}

@@ -8,31 +8,31 @@ const CreateScreen = () => {
 
   return (
     <Layout>
-    <div>
-      <h1>Centre de Création</h1>
-      <div>
-        <button 
-          onClick={() => setActiveTab('job')}
-          style={{ fontWeight: activeTab === 'job' ? 'bold' : 'normal' }}
-        >
-          Nouvelle Offre (Job)
-        </button>
-        <button 
-          onClick={() => setActiveTab('app')}
-          style={{ fontWeight: activeTab === 'app' ? 'bold' : 'normal' }}
-        >
-          Nouvelle Candidature
-        </button>
+      <div className="create-screen">
+        <h1>Centre de Création</h1>
+        <div className="create-tabs">
+          <button 
+            className={activeTab === 'job' ? 'active' : ''}
+            onClick={() => setActiveTab('job')}
+          >
+            Nouvelle Offre (Job)
+          </button>
+          <button 
+            className={activeTab === 'app' ? 'active' : ''}
+            onClick={() => setActiveTab('app')}
+          >
+            Nouvelle Candidature
+          </button>
+        </div>
+
+        <hr />
+
+        {activeTab === 'job' ? (
+          <JobCreateForm onSuccess={() => setActiveTab('app')} />
+        ) : (
+          <ApplicationCreateForm />
+        )}
       </div>
-
-      <hr />
-
-      {activeTab === 'job' ? (
-        <JobCreateForm onSuccess={() => setActiveTab('app')} />
-      ) : (
-        <ApplicationCreateForm />
-      )}
-    </div>
     </Layout>
   );
 };

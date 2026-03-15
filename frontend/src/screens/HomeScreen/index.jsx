@@ -13,7 +13,7 @@ const HomeScreen = () => {
     <Layout>
     <div className="home-container">
       
-      <div>
+      <div className="hero">
         <h1>
           Prenez le contrôle de votre carrière avec NextRole
         </h1>
@@ -24,12 +24,13 @@ const HomeScreen = () => {
         {isAuthenticated ? (
           <button 
             onClick={() => navigate('/jobs')}
-            
+            className="btn btn-primary"
           >
-            Reprendre mes recherches, {user?.firstName || 'expert'} !
+          Reprendre mes recherches, {user?.firstName || 'expert'} !
           </button>
         ) : (
           <button 
+            className="btn btn-primary"
             onClick={() => navigate('/login')}>
             Commencer gratuitement
           </button>
@@ -40,26 +41,26 @@ const HomeScreen = () => {
 
       <h2 >Pourquoi utiliser NextRole ?</h2>
       
-      <div >
+      <div className="features-grid">
         
-        <div >
-          <div >📋</div>
+        <div className="feature-card">
+          <div className="feature-icon">📋</div>
           <h3 >Centralisez vos annonces</h3>
           <p >
             Sauvegardez les offres d'emploi qui vous intéressent (salaire, rythme, entreprise) pour ne jamais perdre le fil.
           </p>
         </div>
 
-        <div >
-          <div >🚀</div>
+        <div className="feature-card">
+            <div className="feature-icon">🚀</div>
           <h3>Suivez vos candidatures</h3>
           <p >
             Passez du statut "Postulé" à "Entretien" ou "Test Technique" en un clic. Ayez toujours une vue claire sur vos processus en cours.
           </p>
         </div>
 
-        <div >
-          <div>⏰</div>
+        <div className="feature-card">
+            <div className="feature-icon">⏰</div>
           <h3>Gérez vos relances</h3>
           <p>
             Stockez les informations des recruteurs (LinkedIn, emails) et ajoutez un historique précis de toutes vos relances pour maximiser vos chances.

@@ -56,7 +56,7 @@ const JobEditForm = ({ job, onCancel, onUpdate }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="edit-form">
       <h3>Modifier les informations générales</h3>
       
       <label>Titre :</label>
@@ -69,9 +69,11 @@ const JobEditForm = ({ job, onCancel, onUpdate }) => {
       <input value={formData.location} onChange={e => setFormData({...formData, location: e.target.value})} required />
 
       <label>Salaire (Min/Max/Devise) :</label>
-      <input type="number" value={formData.salary.mini} onChange={e => setFormData({...formData, salary: {...formData.salary, mini: e.target.value}})} />
-      <input type="number" value={formData.salary.maxi} onChange={e => setFormData({...formData, salary: {...formData.salary, maxi: e.target.value}})} />
-      <input value={formData.salary.currency} onChange={e => setFormData({...formData, salary: {...formData.salary, currency: e.target.value.toUpperCase()}})} />
+      <div className="form-row">
+        <input type="number" value={formData.salary.mini} onChange={e => setFormData({...formData, salary: {...formData.salary, mini: e.target.value}})} />
+        <input type="number" value={formData.salary.maxi} onChange={e => setFormData({...formData, salary: {...formData.salary, maxi: e.target.value}})} />
+        <input value={formData.salary.currency} onChange={e => setFormData({...formData, salary: {...formData.salary, currency: e.target.value.toUpperCase()}})} />
+      </div>
 
       <label>Rythme :</label>
       <select value={formData.workRhythm} onChange={e => setFormData({...formData, workRhythm: e.target.value})}>
@@ -92,9 +94,10 @@ const JobEditForm = ({ job, onCancel, onUpdate }) => {
       <label>Lien de l'offre :</label>
       <input type="url" value={formData.link} onChange={e => setFormData({...formData, link: e.target.value})} />
 
-      <br />
-      <button type="submit">Enregistrer les modifications</button>
-      <button type="button" onClick={onCancel}>Annuler</button>
+      <div className="form-actions">
+        <button type="submit" className="btn btn-primary">Enregistrer les modifications</button>
+        <button type="button" className="btn btn-outline" onClick={onCancel}>Annuler</button>
+      </div>
     </form>
   );
 };
