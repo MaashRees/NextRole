@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import apiService from '../../services/ApiService';
 import { useAuth } from '../../contexts/AuthContext';
+import ProfileDetails from '../../components/ProfileDetails';
+import ProfileEditForm from '../../components/ProfileEditForm';
 
 const ProfileScreen = () => {
   const { logout } = useAuth();
@@ -16,6 +18,7 @@ const ProfileScreen = () => {
   const [formData, setFormData] = useState({
     firstname: '',
     lastname: '',
+    email: '',
     age: ''
   });
 
@@ -83,82 +86,36 @@ const ProfileScreen = () => {
     <div className="profile-container">
       <h2>Mon Profil</h2>
       
+      {/* Affichage conditionnel avec tes nouveaux composants découpés */}
       {!isEditing ? (
-        <div className="profile-details">
-          <p><strong>Prénom :</strong> {fullUser?.firstname}</p>
-          <p><strong>Nom :</strong> {fullUser?.lastname}</p>
-          <p><strong>Email :</strong> {fullUser?.email}</p>
-          <p><strong>Âge :</strong> {fullUser?.age} ans</p>
-          
-          <button 
-            onClick={() => setIsEditing(true)} 
-            style={{ marginTop: '15px' }}
-          >
-            Éditer mon profil
-          </button>
-        </div>
+        <ProfileDetails 
+          user={fullUser} 
+          onEditClick={() => setIsEditing(true)} 
+        />
       ) : (
-        <form onSubmit={handleUpdate} className="profile-form">
-          <div style={{ marginBottom: '10px' }}>
-            <label><strong>Email :</strong> </label>
-            <input 
-              placeholder="Votre mail"
-              value={fullUser?.email}
-              onChange={(e) => setFormData({...formData, email: e.target.value})} />
-          </div>
-
-          <div style={{ marginBottom: '10px' }}>
-            <label><strong>Prénom : </strong></label>
-            <input 
-              placeholder="Votre prénom"
-              value={formData.firstname} 
-              onChange={(e) => setFormData({...formData, firstname: e.target.value})} 
-            />
-          </div>
-          
-          <div style={{ marginBottom: '10px' }}>
-            <label><strong>Nom : </strong></label>
-            <input 
-              placeholder="Votre nom"
-              value={formData.lastname} 
-              onChange={(e) => setFormData({...formData, lastname: e.target.value})} 
-            />
-          </div>
-          
-          <div style={{ marginBottom: '15px' }}>
-            <label><strong>Âge : </strong></label>
-            <input 
-              type="number"
-              placeholder="Votre âge"
-              value={formData.age} 
-              onChange={(e) => setFormData({...formData, age: e.target.value})} 
-            />
-          </div>
-
-          <div className="form-actions">
-            <button type="submit" style={{ marginRight: '10px', backgroundColor: '#4CAF50', color: 'white' }}>
-              Enregistrer les modifications
-            </button>
-            <button type="button" onClick={() => setIsEditing(false)}>
-              Annuler
-            </button>
-          </div>
-        </form>
+        <ProfileEditForm 
+          formData={formData} 
+          setFormData={setFormData} 
+          onSubmit={handleUpdate} 
+          onCancel={() => setIsEditing(false)} 
+        />
       )}
 
       <hr style={{ margin: '30px 0' }} />
+      
       <button 
         onClick={handleLogout} 
-        style={{ color: '#ef4444', border: '1px solid #ef4444', backgroundColor: 'transparent', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer' }}
+        style={{ color: '#ef4444', border: '1px solid #ef4444', backgroundColor: 'transparent', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer', marginRight: '10px' }}
       >
         Déconnexion
       </button>
+      
       <button 
-          onClick={handleDeleteAccount} 
-          style={{ color: 'white', backgroundColor: '#ef4444', border: 'none', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer' }}
-        >
-          Supprimer mon compte
-        </button>
+        onClick={handleDeleteAccount} 
+        style={{ color: 'white', backgroundColor: '#ef4444', border: 'none', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer' }}
+      >
+        Supprimer mon compte
+      </button>
     </div>
   );
 };
