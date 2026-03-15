@@ -35,7 +35,7 @@ exports.createApplication = async (req, res) => {
 
 exports.getAllMyApplications = async (req, res) => {
     try {
-        const apps = await Application.find({ user: req.user.id }).sort({ appliedDate: -1 });
+        const apps = await Application.find({ user: req.user.id }).populate('job', 'title company location').sort({ appliedDate: -1 });
         
         console.log(`[INFO - APPLICATION :: CONTROLLER :: GET_ALL] : ${apps.length} candidatures récupérées pour User: ${req.user.id}`);
         return res.status(200).json({ error: false, data: apps });

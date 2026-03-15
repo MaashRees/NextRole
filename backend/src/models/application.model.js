@@ -41,3 +41,5 @@ const applicationSchema = new mongoose.Schema({
 applicationSchema.virtual('followUpCount').get(function() {
   return this.followUps.dates.length;
 });
+
+module.exports = mongoose.model('Application', applicationSchema);

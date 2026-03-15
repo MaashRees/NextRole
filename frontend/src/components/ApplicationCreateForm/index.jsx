@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import apiService from '../../services/ApiService';
 
-const ApplicationCreateForm = () => {
+const ApplicationCreateForm = ({ onSuccess }) => {
+  const navigate = useNavigate();
   const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(false);
+  
   const [formData, setFormData] = useState({
     jobId: '',
     status: 'Postulé',
@@ -11,45 +15,84 @@ const ApplicationCreateForm = () => {
 
   useEffect(() => {
     const fetchJobs = async () => {
-      const data = await apiService.getJobs();
-      setJobs(data);
+      try {
+        const response = await apiService.getJobs();
+        const jobsData = response.data ? response.data : response;
+        setJobs(Array.isArray(jobsData) ? jobsData : []);
+      } catch (err) {
+        console.error("Erreur chargement jobs:", err);
+      }
     };
     fetchJobs();
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.jobId) return alert("Sélectionnez un job");
+    if (!formData.jobId) return alert("Veuillez sélectionner une offre d'emploi.");
     
+    setLoading(true);
     try {
       await apiService.createApplication(formData);
-      alert("Candidature enregistrée !");
+      alert("Candidature enregistrée avec succès !");
+      if (onSuccess) onSuccess();
+      else navigate('/applications');
     } catch (err) {
-      alert(err.message);
+      alert("Erreur : " + err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h3>Détails de la candidature</h3>
-      <label>Associer à une offre :</label>
-      <select onChange={e => setFormData({...formData, jobId: e.target.value})} required>
-        <option value="">-- Choisir un job --</option>
-        {jobs.map(j => <option key={j._id} value={j._id}>{j.title} - {j.company}</option>)}
-      </select>
-
-      <label>Statut actuel :</label>
-      <select value={formData.status} onChange={e => setFormData({...formData, status: e.target.value})}>
-        <option value="En attente">En attente</option>
-        <option value="Postulé">Postulé</option>
-        <option value="Entretien">Entretien</option>
-        <option value="Test Technique">Test Technique</option>
-        <option value="Offre">Offre</option>
-      </select>
-
-      <textarea placeholder="Notes (ex: contact RH, plateforme...)" onChange={e => setFormData({...formData, notes: e.target.value})} />
+    <form onSubmit={handleSubmit} style={{ maxWidth: '500px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+      <h3>Nouvelle candidature</h3>
       
-      <button type="submit">Enregistrer la candidature</button>
+      <div>
+        <label><strong>Associer à une offre * :</strong></label>
+        <select 
+          value={formData.jobId}
+          onChange={e => setFormData({...formData, jobId: e.target.value})} 
+          required
+          style={{ width: '100%', padding: '8px', marginTop: '5px' }}
+        >
+          <option value="">-- Choisir une offre --</option>
+          {jobs.map(j => <option key={j._id} value={j._id}>{j.title} - {j.company}</option>)}
+        </select>
+      </div>
+
+      <div>
+        <label><strong>Statut actuel :</strong></label>
+        <select 
+          value={formData.status} 
+          onChange={e => setFormData({...formData, status: e.target.value})}
+          style={{ width: '100%', padding: '8px', marginTop: '5px' }}
+        >
+          <option value="En attente">En attente</option>
+          <option value="Postulé">Postulé</option>
+          <option value="Entretien">Entretien</option>
+          <option value="Test Technique">Test Technique</option>
+          <option value="Offre">Offre acceptée</option>
+          <option value="Refusé">Refusé</option>
+        </select>
+      </div>
+
+      <div>
+        <label><strong>Notes / Remarques :</strong></label>
+        <textarea 
+          placeholder="Ex: Contact RH, lien du test technique..." 
+          value={formData.notes}
+          onChange={e => setFormData({...formData, notes: e.target.value})} 
+          style={{ width: '100%', padding: '8px', marginTop: '5px', minHeight: '80px' }}
+        />
+      </div>
+      
+      <button 
+        type="submit" 
+        disabled={loading}
+        style={{ backgroundColor: '#38bdf8', color: 'white', padding: '12px', border: 'none', borderRadius: '5px', fontWeight: 'bold', cursor: 'pointer' }}
+      >
+        {loading ? "Enregistrement..." : "Enregistrer la candidature"}
+      </button>
     </form>
   );
 };

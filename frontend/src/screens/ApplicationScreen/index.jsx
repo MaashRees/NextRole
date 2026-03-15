@@ -11,10 +11,11 @@ const ApplicationScreen = () => {
   useEffect(() => {
     const fetchApps = async () => {
       try {
-        const data = await apiService.getApplications(); 
-        setApplications(data);
+        const response = await apiService.getApplications();
+        const appsData = response.data ? response.data : response;
+        setApplications(Array.isArray(appsData) ? appsData : []);
       } catch (err) {
-        alert("Erreur : " + err.message);
+        alert("Erreur lors du chargement des candidatures : " + err.message);
       } finally {
         setLoading(false);
       }
@@ -26,9 +27,18 @@ const ApplicationScreen = () => {
 
   return (
     <div>
-      <h1>Mes Candidatures</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <h1>Mes Candidatures</h1>
+        <button 
+          onClick={() => navigate('/create')}
+          style={{ backgroundColor: '#38bdf8', color: 'white', padding: '10px 20px', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
+        >
+          + Nouvelle Candidature
+        </button>
+      </div>
+
       {applications.length === 0 ? (
-        <p>Aucune candidature enregistrée. <button onClick={() => navigate('/create')}>Postuler maintenant</button></p>
+        <p>Aucune candidature enregistrée pour le moment.</p>
       ) : (
         <div>
           {applications.map(app => (
