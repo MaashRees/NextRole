@@ -13,7 +13,7 @@ const ApplicationItem = ({ app, onDelete }) => {
       try {
         await apiService.deleteApplication(currentApp._id); 
         onDelete(currentApp._id);
-      } catch (err) { alert("Erreur lors de la suppression : " + err.message); }
+      } catch (err) { console.error("Erreur lors de la suppression : " + err.message); }
     }
   };
 

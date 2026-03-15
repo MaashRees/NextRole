@@ -13,7 +13,7 @@ const TagManager = ({ jobId, initialTags, onUpdate }) => {
       setTags(updatedTags);
       setNewTag('');
       onUpdate(updatedTags);
-    } catch (err) { alert(err.message); }
+    } catch (err) { console.error(err.message); }
   };
 
   const handleRemove = async (tagName) => {
@@ -22,7 +22,7 @@ const TagManager = ({ jobId, initialTags, onUpdate }) => {
       const updatedTags = tags.filter(t => t !== tagName);
       setTags(updatedTags);
       onUpdate(updatedTags);
-    } catch (err) { alert(err.message); }
+    } catch (err) { console.error(err.message); }
   };
 
   return (

@@ -33,18 +33,18 @@ const ApplicationCreateForm = ({ onSuccess }) => {
     setLoading(true);
     try {
       await apiService.createApplication(formData);
-      alert("Candidature enregistrée avec succès !");
+      console.log("Candidature enregistrée avec succès !");
       if (onSuccess) onSuccess();
       else navigate('/applications');
     } catch (err) {
-      alert("Erreur : " + err.message);
+      console.error("Erreur : " + err.message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-        <form onSubmit={handleSubmit} className="app-form">
+    <form onSubmit={handleSubmit} className="app-form">
       <h3>Nouvelle candidature</h3>
       
       <div>

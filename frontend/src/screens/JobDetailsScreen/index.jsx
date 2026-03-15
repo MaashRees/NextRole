@@ -37,7 +37,7 @@ const JobDetailsScreen = () => {
         await apiService.deleteJob(id);
         navigate('/jobs');
       } catch (err) { 
-        alert("Erreur lors de la suppression : " + err.message); 
+        console.error("Erreur lors de la suppression : " + err.message); 
       }
     }
   };

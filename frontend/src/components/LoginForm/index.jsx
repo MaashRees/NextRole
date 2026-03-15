@@ -17,7 +17,7 @@ const LoginForm = () => {
       login(data.token, data.user); 
       navigate('/profile');
     } catch (err) {
-      alert("Erreur : " + err.message);
+      console.error("Erreur : " + err.message);
     }
   };
 

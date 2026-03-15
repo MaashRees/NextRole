@@ -16,7 +16,7 @@ const ApplicationScreen = () => {
         const appsData = response.data ? response.data : response;
         setApplications(Array.isArray(appsData) ? appsData : []);
       } catch (err) {
-        alert("Erreur lors du chargement des candidatures : " + err.message);
+        console.error("Erreur lors du chargement des candidatures : " + err.message);
       } finally {
         setLoading(false);
       }

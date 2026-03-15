@@ -15,7 +15,7 @@ const ContactManager = ({ jobId, initialContacts }) => {
       setContacts([...contacts, addedData]);
       setShowForm(false);
       setNewContact({ name: '', position: '', email: '', linkedin: '' });
-    } catch (err) { alert(err.message); }
+    } catch (err) { console.error(err.message); }
   };
 
   const handleRemoveContact = async (contactId) => {
@@ -26,7 +26,7 @@ const ContactManager = ({ jobId, initialContacts }) => {
       const updatedContacts = contacts.filter(c => c._id !== contactId);
       setContacts(updatedContacts);
     } catch (err) { 
-      alert("Erreur lors de la suppression : " + err.message); 
+      console.error("Erreur lors de la suppression : " + err.message); 
     }
   };
 

@@ -75,7 +75,7 @@ const ProfileScreen = () => {
         logout();
         navigate('/');
       } catch (err) {
-        alert("Erreur lors de la suppression : " + err.message);
+        console.error("Erreur lors de la suppression : " + err.message);
       }
     }
   };

@@ -12,7 +12,7 @@ const StatusManager = ({ appId, status, onUpdate }) => {
       await apiService.updateApplicationStatus(appId, newStatus);
       onUpdate(newStatus);
     } catch (err) {
-      alert("Erreur lors du changement de statut : " + err.message);
+      console.error("Erreur lors du changement de statut : " + err.message);
     } finally {
       setIsUpdating(false);
     }

@@ -40,7 +40,7 @@ const JobEditForm = ({ job, onCancel, onUpdate }) => {
     }
 
     if (Object.keys(payload).length === 0 && !payload.salary) {
-      alert("Aucune modification détectée.");
+      console.log("Aucune modification détectée.");
       onCancel();
       return;
     }
@@ -49,9 +49,9 @@ const JobEditForm = ({ job, onCancel, onUpdate }) => {
       const response = await apiService.updateJob(job._id, payload);
       const updatedData = response.data ? response.data : response;
       onUpdate(updatedData);
-      alert("Informations mises à jour !");
+      console.log("Informations mises à jour !");
     } catch (err) {
-      alert("Erreur lors de l'enregistrement : " + err.message);
+      console.error("Erreur lors de l'enregistrement : " + err.message);
     }
   };
 

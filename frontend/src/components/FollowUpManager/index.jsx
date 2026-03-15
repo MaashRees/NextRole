@@ -21,7 +21,7 @@ const FollowUpManager = ({ appId, followUps, onUpdate }) => {
       setNote(''); 
       setIsAdding(false);
     } catch (err) {
-      alert("Erreur lors de l'ajout de la relance : " + err.message);
+      console.error("Erreur lors de l'ajout de la relance : " + err.message);
     } finally {
       setLoading(false);
     }

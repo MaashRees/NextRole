@@ -25,7 +25,7 @@ app.use(logger);
 
 
 app.get('/', (req, res) => {
-    return res.send("<pre>Bienvenue sur NextRoute</pre>");
+    return res.send("<pre>Bienvenue sur NextRole</pre>");
 });
 
 const usersRoutes = require("./src/routes/user.route");

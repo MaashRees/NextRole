@@ -102,14 +102,14 @@ const JobCreateForm = ({ onSuccess }) => {
         response = await apiService.createJob(payload);
       }
 
-      alert("Offre créée avec succès !");
+      console.log("Offre créée avec succès !");
       if (onSuccess) {
         onSuccess();
       } else {
         navigate('/jobs');
       }
     } catch (err) {
-      alert("Erreur lors de la création : " + err.message);
+      console.error("Erreur lors de la création : " + err.message);
     } finally {
       setLoading(false);
     }

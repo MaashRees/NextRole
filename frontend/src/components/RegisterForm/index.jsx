@@ -36,7 +36,7 @@ const RegisterForm = ({ onToggle }) => {
         ...payload,
         age: Number(payload.age)
       });
-      alert("Inscription réussie !");
+      console.log("Inscription réussie !");
       onToggle();
     } catch (err) {
       setError(err.message || "Erreur lors de l'inscription");
