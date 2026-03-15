@@ -9,31 +9,59 @@ const ContactManager = ({ jobId, initialContacts }) => {
   const handleAddContact = async (e) => {
     e.preventDefault();
     try {
-      await apiService.addContact(jobId, newContact);
-      setContacts([...contacts, newContact]);
+      const response = await apiService.addContact(jobId, newContact);
+      const addedData = response.data ? response.data : newContact; 
+      
+      setContacts([...contacts, addedData]);
       setShowForm(false);
       setNewContact({ name: '', position: '', email: '', linkedin: '' });
     } catch (err) { alert(err.message); }
   };
 
+  const handleRemoveContact = async (contactId) => {
+    if (!contactId) return alert("Veuillez rafraîchir la page pour supprimer ce contact récemment ajouté.");
+    
+    try {
+      await apiService.removeContact(jobId, contactId);
+      const updatedContacts = contacts.filter(c => c._id !== contactId);
+      setContacts(updatedContacts);
+    } catch (err) { 
+      alert("Erreur lors de la suppression : " + err.message); 
+    }
+  };
+
   return (
     <div>
       <h4>Contacts</h4>
-      <ul>
+      <ul style={{ listStyle: 'none', padding: 0 }}>
         {contacts.map((c, i) => (
-          <li key={i}>{c.name} ({c.position}) - {c.email}</li>
+          <li key={c._id || i} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', padding: '10px', border: '1px solid #ddd' }}>
+            <div>
+              <strong>{c.name}</strong> {c.position && `(${c.position})`} <br />
+              <small>{c.email}</small>
+            </div>
+            <button 
+              onClick={() => handleRemoveContact(c._id)} 
+              style={{ color: 'red', border: 'none', background: 'transparent', cursor: 'pointer' }}
+            >
+              Supprimer
+            </button>
+          </li>
         ))}
       </ul>
       
       {!showForm ? (
-        <button onClick={() => setShowForm(true)}>Ajouter un contact</button>
+        <button onClick={() => setShowForm(true)}>+ Ajouter un contact</button>
       ) : (
-        <form onSubmit={handleAddContact}>
-          <input placeholder="Nom" onChange={e => setNewContact({...newContact, name: e.target.value})} required />
-          <input placeholder="Poste" onChange={e => setNewContact({...newContact, position: e.target.value})} />
-          <input placeholder="Email" onChange={e => setNewContact({...newContact, email: e.target.value})} />
-          <button type="submit">Valider</button>
-          <button type="button" onClick={() => setShowForm(false)}>Annuler</button>
+        <form onSubmit={handleAddContact} style={{ display: 'flex', flexDirection: 'column', gap: '5px', marginTop: '10px' }}>
+          <input placeholder="Nom" value={newContact.name} onChange={e => setNewContact({...newContact, name: e.target.value})} required />
+          <input placeholder="Poste" value={newContact.position} onChange={e => setNewContact({...newContact, position: e.target.value})} />
+          <input placeholder="Email" value={newContact.email} onChange={e => setNewContact({...newContact, email: e.target.value})} />
+          <input placeholder="LinkedIn" value={newContact.linkedin} onChange={e => setNewContact({...newContact, linkedin: e.target.value})} />
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button type="submit">Valider</button>
+            <button type="button" onClick={() => setShowForm(false)}>Annuler</button>
+          </div>
         </form>
       )}
     </div>

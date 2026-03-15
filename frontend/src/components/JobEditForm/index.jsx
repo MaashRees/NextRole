@@ -39,18 +39,19 @@ const JobEditForm = ({ job, onCancel, onUpdate }) => {
       payload.salary = salaryPayload;
     }
 
-    if (Object.keys(payload).length === 0) {
+    if (Object.keys(payload).length === 0 && !payload.salary) {
       alert("Aucune modification détectée.");
       onCancel();
       return;
     }
 
     try {
-      const updated = await apiService.updateJob(job._id, payload);
-      onUpdate(updated);
+      const response = await apiService.updateJob(job._id, payload);
+      const updatedData = response.data ? response.data : response;
+      onUpdate(updatedData);
       alert("Informations mises à jour !");
     } catch (err) {
-      alert("Erreur : " + err.message);
+      alert("Erreur lors de l'enregistrement : " + err.message);
     }
   };
 

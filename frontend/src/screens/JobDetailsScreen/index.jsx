@@ -8,16 +8,23 @@ import ContactManager from '../../components/ContactManager';
 const JobDetailsScreen = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  
   const [job, setJob] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
   const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     const fetchJob = async () => {
       try {
-        const data = await apiService.getJobById(id);
-        setJob(data);
+        const response = await apiService.getJobById(id);
+        const jobData = response.data ? response.data : response;
+        setJob(jobData);
       } catch (err) {
-        alert(err.message);
+        setError(err.message);
+      } finally {
+        setLoading(false);
       }
     };
     fetchJob();
@@ -28,47 +35,62 @@ const JobDetailsScreen = () => {
       try {
         await apiService.deleteJob(id);
         navigate('/jobs');
-      } catch (err) { alert(err.message); }
+      } catch (err) { 
+        alert("Erreur lors de la suppression : " + err.message); 
+      }
     }
   };
 
-  if (!job) return <p>Chargement du job...</p>;
+  if (loading) return <p>Chargement des détails du job...</p>;
+  if (error) return <p style={{ color: 'red' }}>Erreur : {error}</p>;
+  if (!job) return <p>Job introuvable.</p>;
 
   return (
-    <div>
-      <button onClick={() => navigate('/jobs')}>← Retour à la liste</button>
+    <div className="job-details-container">
+      <button onClick={() => navigate('/jobs')} style={{ marginBottom: '20px' }}>
+        ← Retour à la liste
+      </button>
       
       {isEditing ? (
         <JobEditForm 
           job={job} 
           onCancel={() => setIsEditing(false)} 
-          onUpdate={(updated) => { setJob(updated); setIsEditing(false); }} 
+          onUpdate={(updatedJob) => { 
+            const newData = updatedJob.data ? updatedJob.data : updatedJob;
+            setJob(newData); 
+            setIsEditing(false); 
+          }} 
         />
       ) : (
-        <div>
+        <div className="job-info">
           <h1>{job.title}</h1>
           <h2>{job.company} - {job.location}</h2>
-          <button onClick={() => setIsEditing(true)}>Modifier les infos générales</button>
-          <button onClick={handleDelete} style={{ color: 'red' }}>Supprimer l'offre</button>
+          
+          <div style={{ margin: '15px 0', display: 'flex', gap: '10px' }}>
+            <button onClick={() => setIsEditing(true)}>Modifier les infos</button>
+            <button onClick={handleDelete} style={{ color: 'red' }}>Supprimer l'offre</button>
+          </div>
           
           <hr />
-          <p><strong>Contrat :</strong> {job.contractType}</p>
-          <p><strong>Rythme :</strong> {job.workRhythm}</p>
-          <p><strong>Salaire :</strong> {job.salary?.mini} - {job.salary?.maxi} {job.salary?.currency}</p>
+          <div style={{ marginTop: '15px' }}>
+            <p><strong>Contrat :</strong> {job.contractType}</p>
+            <p><strong>Rythme :</strong> {job.workRhythm}</p>
+            <p><strong>Salaire :</strong> {job.salary?.mini} - {job.salary?.maxi} {job.salary?.currency}</p>
+          </div>
         </div>
       )}
 
-      <hr />
+      <hr style={{ margin: '30px 0' }} />
       <TagManager 
         jobId={job._id} 
-        initialTags={job.tags} 
+        initialTags={job.tags || []} 
         onUpdate={(newTags) => setJob({...job, tags: newTags})} 
       />
 
-      <hr />
+      <hr style={{ margin: '30px 0' }} />
       <ContactManager 
         jobId={job._id} 
-        initialContacts={job.contacts} 
+        initialContacts={job.contacts || []} 
       />
     </div>
   );
