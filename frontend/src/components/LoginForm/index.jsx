@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import apiService from '../../services/ApiService';
 import useLocalStorage from '../../hooks/useLocalStorage';
@@ -6,9 +6,17 @@ import useLocalStorage from '../../hooks/useLocalStorage';
 const LoginForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [, setToken] = useLocalStorage('token', null);
-  const [, setUser] = useLocalStorage('user', null);
+  const [token, setToken] = useLocalStorage('token', null);
+  const [user, setUser] = useLocalStorage('user', null);
+  
   const navigate = useNavigate();
+  const isAuthenticated = !!token && !!user;
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/profile');
+    }
+  }, [isAuthenticated]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -16,7 +24,7 @@ const LoginForm = () => {
       const data = await apiService.login({ email, password });
       setToken(data.token);
       setUser(data.user); 
-      navigate('/profile');
+      
     } catch (err) {
       alert("Erreur : " + err.message);
     }
@@ -42,6 +50,5 @@ const LoginForm = () => {
     </form>
   );
 };
-
 
 export default LoginForm;

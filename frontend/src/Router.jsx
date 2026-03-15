@@ -11,7 +11,8 @@ import useLocalStorage from './hooks/useLocalStorage';
 
 function Router() {
   const [token] = useLocalStorage('token', null);
-  const isAuthenticated = !!token;
+  const [user] = useLocalStorage('user', null);
+  const isAuthenticated = !!token && !!user;
 
   return (
     <BrowserRouter>
@@ -25,10 +26,10 @@ function Router() {
             path="/profile" 
             element={isAuthenticated ? <ProfileScreen /> : <Navigate to="/login" />} 
           />
-          <Route path="/jobs" element={<JobScreen />} />
-          <Route path="/jobs/:id" element={<JobDetailsScreen />} />
-          <Route path="/applications" element={<ApplicationScreen />} />
-          <Route path="/create" element={<CreateScreen />} />
+          <Route path="/jobs" element={isAuthenticated ? <JobScreen /> : <Navigate to="/login" />} />
+          <Route path="/jobs/:id" element={isAuthenticated ? <JobDetailsScreen /> : <Navigate to="/login" />} />
+          <Route path="/applications" element={isAuthenticated ? <ApplicationScreen /> : <Navigate to="/login" />} />
+          <Route path="/create" element={isAuthenticated ? <CreateScreen /> : <Navigate to="/login" />} />
         </Route>
         
         <Route path="*" element={<Navigate to="/" replace />} />

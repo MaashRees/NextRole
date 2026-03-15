@@ -1,4 +1,4 @@
-const BASE_URL = import.meta.env.VITE_BACKEND_URI;
+const BASE_URL = import.meta.env.VITE_BACKEND_URI || "http://localhost:3000";
 
 class ApiService {
   async request(endpoint, options = {}) {

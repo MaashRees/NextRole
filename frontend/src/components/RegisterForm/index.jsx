@@ -5,7 +5,6 @@ const RegisterForm = ({ onToggle }) => {
   const [formData, setFormData] = useState({
     firstname: '',
     lastname: '',
-    username: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -27,8 +26,10 @@ const RegisterForm = ({ onToggle }) => {
     setError('');
 
     const validationError = validate();
-    if (validationError) return setError(validationError);
-
+    if (validationError) {
+      console.log(validateError);
+      return setError(validationError);
+    }
     try {
       const { confirmPassword, ...payload } = formData;
       await apiService.register({
@@ -51,7 +52,6 @@ const RegisterForm = ({ onToggle }) => {
       {error && <p style={{ color: 'red' }}>{error}</p>}
       <input name="firstname" placeholder="Prénom" onChange={handleChange} required />
       <input name="lastname" placeholder="Nom" onChange={handleChange} required />
-      <input name="username" placeholder="Nom d'utilisateur" onChange={handleChange} required />
       <input name="email" type="email" placeholder="Email" onChange={handleChange} required />
       <input name="age" type="number" placeholder="Âge (min 18)" onChange={handleChange} required />
       <input name="password" type="password" placeholder="Mot de passe (min 8)" onChange={handleChange} required />

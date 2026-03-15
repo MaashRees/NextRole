@@ -65,6 +65,7 @@ exports.Login = async (req, res) => {
             error: false,
             message: "Connexion réussie",
             token: token,
+            user: {id:user._id},
         });
     } catch (error) {
         console.error(`[ERROR - USER :: CONTROLLER :: LOGIN] : ${error.message}`);

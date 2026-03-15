@@ -26,12 +26,6 @@ const ProfileScreen = () => {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    window.location.href = '/';
-  };
-
   return (
     <div>
       <h2>Mon Profil (@{user?.username})</h2>
@@ -66,7 +60,12 @@ const ProfileScreen = () => {
       )}
 
       <hr />
-      <button onClick={handleLogout} style={{ color: 'red' }}>Déconnexion</button>
+      <button onClick={() => {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          window.location.href = '/';
+        }
+        } style={{ color: 'red' }}>Déconnexion</button>
     </div>
   );
 };
