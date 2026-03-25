@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  backend:
+    # Si le VPS construit l'image localement, laissez "build: ./backend"
+    # Sinon, si tiré du Docker Hub, utilisez "image: seerm/nextrole-backend:latest"
+    build: ./backend
+    container_name: nextrole_backend_prod
+    # Pas besoin d'exposer le port backend publiquement, NGINX va router vers lui via le réseau Docker (port 3000)
+    ports:
+      - "127.0.0.1:3000:3000"
+    environment:
+      # L'URL Frontend en production pour le CORS
+      - FRONTEND_URL=https://nextrole.maashrees.fr
+      
+      # Configuration de connexion MongoDB
+      # Si Mongo tourne sur le VPS avec un port exposé 27017/tcp : on utilise l'IP locale ou host.docker.internal ou l'adresse docker bridge (172.17.0.1)
+      - DB_HOST=172.17.0.1
+      - DB_PORT=27017
+      - DB_NAME=nextroute
+      
+      # JWT et autres secrets (à modifier idéalement via un .env hors git)
+      - JWT_SECRET=9de87a20b73617ba4c0a89bb1637980932ce6730547bb9f82c3f60a0a10fa1a312511f5ccad75e96cbeb80ea35f66d048975b5f2396e7ae3f9e03a45facd4328
+      - SALT_ROUNDS=10
+      - BASE_AVATAR_URL=https://api.dicebear.com/9.x/avataaars-neutral/svg?seed=
+    restart: always
+
+  frontend:
+    # build local ou "image: seerm/nextrole-frontend:latest"
+    build:
+      context: ./frontend
+      # ARG injecté lors du build de l'image de production sur le VPS
+      args:
+        - VITE_BACKEND_URI=https://nextrole.maashrees.fr/api
+    container_name: nextrole_frontend_prod
+    ports:
+      # NGINX (sur le VPS directement) va forwarder sur ce port 5173
+      - "127.0.0.1:5173:80"
+    depends_on:
+      - backend
+    restart: always
