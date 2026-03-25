@@ -1,14 +1,26 @@
-const logger = (req, res, next) => {
-  const date = new Date().toLocaleDateString("fr-FR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  });
-  console.log(`[${req.method.toUpperCase()}] ${date} - ${req.url}`);
-  next();
-};
+const winston = require('winston');
+const morgan = require('morgan');
 
-module.exports = logger;
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.combine(
+    winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+    winston.format.printf(info => `[${info.timestamp}] ${info.level.toUpperCase()}: ${info.message}`)
+  ),
+  transports: [
+    new winston.transports.Console(),
+    new winston.transports.File({ filename: 'logs/error.log', level: 'error' }),
+    new winston.transports.File({ filename: 'logs/combined.log' })
+  ]
+});
+
+const morganMiddleware = morgan(
+  ':method :url :status :res[content-length] - :response-time ms',
+  {
+    stream: {
+      write: (message) => logger.info(message.trim())
+    }
+  }
+);
+
+module.exports = { logger, morganMiddleware };

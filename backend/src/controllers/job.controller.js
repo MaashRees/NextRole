@@ -58,6 +58,7 @@ exports.getJobById = async (req, res) => {
 exports.updateJob = async (req, res) => {
     try {
         const updates = req.body;
+        console.log(req.body)
         if (updates.salary) {
             if (updates.salary.mini !== undefined) updates["salary.mini"] = updates.salary.mini;
             if (updates.salary.maxi !== undefined) updates["salary.maxi"] = updates.salary.maxi;
