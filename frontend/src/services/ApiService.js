@@ -123,6 +123,29 @@ class ApiService {
     return this.request(`/jobs/${id}`, { method: 'DELETE' });
   }
 
+  // --- OCR Methods ---
+  async uploadJobOffer(formData) {
+    const storedToken = localStorage.getItem('token');
+    let token = null;
+    try { token = storedToken ? JSON.parse(storedToken) : null; } catch { token = storedToken; }
+    // Note: Do NOT set Content-Type here - the browser sets it with the correct boundary for multipart/form-data
+    const response = await fetch(`${BASE_URL}/jobs/upload`, {
+      method: 'POST',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: formData,
+    });
+    const data = await response.json();
+    if (!response.ok) throw { status: response.status, message: data.error || 'Erreur upload' };
+    return data;
+  }
+
+  async validateJobOffer(id, fields) {
+    return this.request(`/jobs/${id}/validate`, {
+      method: 'PUT',
+      body: JSON.stringify(fields),
+    });
+  }
+
   async addTag(id, tagName) {
     return this.request(`/jobs/${id}/tags/add`, {
       method: 'PATCH',
