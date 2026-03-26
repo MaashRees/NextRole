@@ -4,6 +4,8 @@ services:
   backend:
     build: ./backend
     container_name: nextrole_backend
+    depends_on:
+      - minio
     ports:
       - "3005:3000"
     environment:
@@ -14,6 +16,13 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - SALT_ROUNDS=${SALT_ROUNDS}
       - BASE_AVATAR_URL=${BASE_AVATAR_URL}
+      - MINIO_ENDPOINT=${MINIO_ENDPOINT}
+      - MINIO_PORT=${MINIO_PORT}
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+      - AIRFLOW_API_URL=${AIRFLOW_API_URL}
+      - AIRFLOW_USER=${AIRFLOW_USER}
+      - AIRFLOW_PASSWORD=${AIRFLOW_PASSWORD}
     restart: always
 
   frontend:
@@ -28,3 +37,97 @@ services:
     depends_on:
       - backend
     restart: always
+
+  # --- DATA LAKE INFRASTRUCTURE ---
+  minio:
+    image: minio/minio:latest
+    container_name: nextrole_minio
+    ports:
+      - "${MINIO_PORT}:9000"
+      - "${MINIO_CONSOLE_PORT}:9001"
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+    command: server /data --console-address ":${MINIO_CONSOLE_PORT}"
+    volumes:
+      - minio_data:/data
+    restart: always
+
+  postgres:
+    image: postgres:13
+    container_name: nextrole_postgres
+    environment:
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow
+      - POSTGRES_DB=airflow
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
+  # --- AIRFLOW ---
+  airflow-webserver:
+    build:
+      context: ./datalake/airflow
+      dockerfile: Dockerfile
+    container_name: nextrole_airflow_webserver
+    depends_on:
+      - postgres
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=${AIRFLOW_DATABASE_SQL_ALCHEMY_CONN}
+      - AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=true
+      - AIRFLOW__CORE__LOAD_EXAMPLES=false
+      - _AIRFLOW_DB_MIGRATE=true
+      - _AIRFLOW_WWW_USER_CREATE=true
+      - _AIRFLOW_WWW_USER_USERNAME=${AIRFLOW_USER}
+      - _AIRFLOW_WWW_USER_PASSWORD=${AIRFLOW_PASSWORD}
+      # Secrets pour les tasks Python (Azure, MinIO, Mongo)
+      - AZURE_OCR_ENDPOINT=${AZURE_OCR_ENDPOINT}
+      - AZURE_OCR_KEY=${AZURE_OCR_KEY}
+      - MINIO_ENDPOINT=${MINIO_ENDPOINT}
+      - MINIO_PORT=${MINIO_PORT}
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_NAME=${DB_NAME}
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./datalake/airflow/dags:/opt/airflow/dags
+      - ./datalake/airflow/logs:/opt/airflow/logs
+    # Airflow 3 : webserver = api-server (nouveau nom de la commande)
+    command: api-server
+    restart: always
+
+  airflow-scheduler:
+    build:
+      context: ./datalake/airflow
+      dockerfile: Dockerfile
+    container_name: nextrole_airflow_scheduler
+    depends_on:
+      - postgres
+      - airflow-webserver
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+      - AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=true
+      - AIRFLOW__CORE__LOAD_EXAMPLES=false
+      - AZURE_OCR_ENDPOINT=${AZURE_OCR_ENDPOINT}
+      - AZURE_OCR_KEY=${AZURE_OCR_KEY}
+      - MINIO_ENDPOINT=${MINIO_ENDPOINT}
+      - MINIO_PORT=${MINIO_PORT}
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_NAME=${DB_NAME}
+    volumes:
+      - ./datalake/airflow/dags:/opt/airflow/dags
+      - ./datalake/airflow/logs:/opt/airflow/logs
+    command: scheduler
+    restart: always
+
+volumes:
+  minio_data:
+  postgres_data:
