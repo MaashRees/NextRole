@@ -82,7 +82,7 @@ FRONTEND_HOST=localhost
 # Configuration Base de données
 DB_HOST=localhost
 DB_PORT=27017
-DB_NAME=nextroute
+DB_NAME=nextrole
 
 # Sécurité
 JWT_SECRET=
