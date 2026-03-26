@@ -106,7 +106,24 @@ const jobSchema = new mongoose.Schema({
   author: contactSchema, 
   contacts: [
     contactSchema
-  ], 
+  ],
+  // ----- OCR / Data Lake fields -----
+  description: {
+    type: String,
+    trim: true,
+    default: null,
+  },
+  fileUri: {
+    type: String,
+    trim: true,
+    default: null,
+  },
+  parsingStatus: {
+    type: String,
+    enum: ['pending_ocr', 'needs_review', 'validated', 'failed'],
+    default: null,
+  },
+  // -----------------------------------
   createdBy: { 
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'User', 
