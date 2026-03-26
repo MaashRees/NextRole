@@ -1,5 +1,5 @@
 import { useTheme } from '../../contexts/ThemeContext';
-import NavBar from '../Navbar/index';
+import NavBar from '../NavBar/index';
 
 const Layout = ({ children }) => {
   const { theme } = useTheme();

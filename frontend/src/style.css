@@ -282,6 +282,7 @@ main {
 
 .login-btn:hover {
   background-color: var(--color-primary-hover);
+  color: white;
   text-decoration: none;
 }
 
@@ -330,6 +331,7 @@ main {
 
 .btn-secondary:hover {
   background-color: #4b5563;
+  color: white;
 }
 
 .btn-danger {
@@ -339,6 +341,7 @@ main {
 
 .btn-danger:hover {
   background-color: var(--color-danger-hover);
+  color: white;
 }
 
 .btn-outline {
@@ -349,6 +352,7 @@ main {
 
 .btn-outline:hover {
   background-color: var(--color-bg-alt);
+  color: var(--color-primary-hover);
 }
 
 .btn-sm {
