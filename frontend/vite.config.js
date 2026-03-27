@@ -7,4 +7,7 @@ export default defineConfig({
     tailwindcss(),
     react(),
   ],
+  define: {
+  'import.meta.env.VITE_BACKEND_URI': JSON.stringify('__VITE_BACKEND_URI__')
+  }
 })

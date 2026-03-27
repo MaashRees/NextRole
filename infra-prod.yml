@@ -1,0 +1,196 @@
+# ======================================================================
+# NextRole — Infrastructure Mutualisée VPS
+#
+# Ce fichier gère les services d'infrastructure PARTAGÉS sur le VPS :
+#   - MongoDB (base applicative)
+#   - MinIO   (data lake S3-compatible)
+#   - PostgreSQL (métadonnées Airflow)
+#   - Airflow (orchestrateur OCR et pipelines)
+#
+# Ces services sont montés sur le réseau Docker externe "infra-network"
+# et sont accessibles à toute application qui y est connectée.
+#
+# Usage :
+#   # 1. Créer le réseau partagé (une seule fois sur le VPS)
+#   docker network create infra-network
+#
+#   # 2. Démarrer l'infrastructure
+#   docker compose -f infra-prod.yml up -d
+#
+#   # 3. Démarrer l'application
+#   docker compose -f docker-compose.prod.yml up -d
+# ======================================================================
+
+version: '3.8'
+
+services:
+
+  # --------------------------------------------------------------------
+  # BASE DE DONNÉES APPLICATIVE — MongoDB
+  # Accessible depuis le réseau interne sous le hostname "mongodb-prod"
+  # --------------------------------------------------------------------
+  mongodb-prod:
+    image: mongo:6.0
+    container_name: nextrole_mongodb_prod
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${DB_NAME}
+    # Port NON exposé publiquement — accessible uniquement via infra-network
+    expose:
+      - "27017"
+    volumes:
+      - mongodb_prod_data:/data/db
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    networks:
+      - infra-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  # --------------------------------------------------------------------
+  # DATA LAKE — MinIO (S3-compatible)
+  # Console d'admin accessible uniquement depuis localhost (à sécuriser derrière nginx si besoin)
+  # --------------------------------------------------------------------
+  minio-prod:
+    image: minio/minio:latest
+    container_name: nextrole_minio_prod
+    restart: always
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
+    # API S3 et console liées sur localhost uniquement
+    ports:
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
+    volumes:
+      - minio_prod_data:/data
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          cpus: '0.10'
+          memory: 128M
+    networks:
+      - infra-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+
+  # --------------------------------------------------------------------
+  # MÉTADONNÉES AIRFLOW — PostgreSQL
+  # Accessible uniquement depuis infra-network sous "postgres-prod"
+  # --------------------------------------------------------------------
+  postgres-prod:
+    image: postgres:15-alpine
+    container_name: nextrole_postgres_prod
+    restart: always
+    environment:
+      POSTGRES_DB: ${AIRFLOW_DB_NAME}
+      POSTGRES_USER: ${AIRFLOW_DB_USER}
+      POSTGRES_PASSWORD: ${AIRFLOW_DB_PASSWORD}
+    expose:
+      - "5432"
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          cpus: '0.10'
+          memory: 128M
+    networks:
+      - infra-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${AIRFLOW_DB_USER} -d ${AIRFLOW_DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # --------------------------------------------------------------------
+  # ORCHESTRATEUR — Apache Airflow (production, LocalExecutor)
+  # Interface web liée sur localhost — à exposer via nginx si besoin
+  # --------------------------------------------------------------------
+  airflow-prod:
+    build: ./datalake/airflow
+    container_name: nextrole_airflow_prod
+    restart: always
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${AIRFLOW_DB_USER}:${AIRFLOW_DB_PASSWORD}@postgres-prod:${AIRFLOW_DB_PORT}/${AIRFLOW_DB_NAME}
+      AIRFLOW__CORE__FERNET_KEY: ${AIRFLOW_FERNET_KEY}
+      AIRFLOW__WEBSERVER__SECRET_KEY: ${JWT_SECRET}
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__WEBSERVER__EXPOSE_CONFIG: "false"
+      AZURE_OCR_ENDPOINT: ${AZURE_OCR_ENDPOINT}
+      AZURE_OCR_KEY: ${AZURE_OCR_KEY}
+      AZURE_OCR_MODEL: ${AZURE_OCR_MODEL}
+      # Accès aux services infra depuis les DAGs
+      MINIO_ENDPOINT: minio-prod
+      MINIO_PORT: ${MINIO_PORT}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      DB_HOST: mongodb-prod
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+    # Interface web accessible uniquement depuis localhost
+    ports:
+      - "127.0.0.1:${AIRFLOW_PORT}:8080"
+    volumes:
+      - ./datalake/airflow/dags:/opt/airflow/dags
+      - airflow_prod_logs:/opt/airflow/logs
+    depends_on:
+      postgres-prod:
+        condition: service_healthy
+      minio-prod:
+        condition: service_started
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    networks:
+      - infra-network
+
+# ======================================================================
+# VOLUMES PERSISTANTS (production)
+# ======================================================================
+volumes:
+  mongodb_prod_data:
+    driver: local
+  minio_prod_data:
+    driver: local
+  postgres_prod_data:
+    driver: local
+  airflow_prod_logs:
+    driver: local
+
+# ======================================================================
+# RÉSEAU PARTAGÉ — doit déjà exister
+#   docker network create infra-network
+# ======================================================================
+networks:
+  infra-network:
+    external: true
+    name: ${INFRA_NETWORK:-infra-network}

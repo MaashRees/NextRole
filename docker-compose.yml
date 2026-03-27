@@ -1,133 +1,228 @@
+# ======================================================================
+# NextRole — Mode Développement LOCAL
+# Lance tout en local : app + bases de données + MinIO + Airflow
+#
+# Usage :
+#   cp .env.example .env   # puis éditez les valeurs
+#   docker compose up --build -d
+# ======================================================================
+
 version: '3.8'
 
 services:
+
+  # --------------------------------------------------------------------
+  # BASE DE DONNÉES APPLICATIVE
+  # --------------------------------------------------------------------
+  mongodb:
+    image: mongo:6.0
+    container_name: nextrole_mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: ${DB_NAME}
+    ports:
+      # Exposé uniquement en local pour accès via Compass, etc.
+      - "27018:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - nextrole_local
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # --------------------------------------------------------------------
+  # BACKEND NODE.JS / EXPRESS
+  # --------------------------------------------------------------------
   backend:
     build: ./backend
     container_name: nextrole_backend
-    depends_on:
-      - minio
+    restart: unless-stopped
+    # Port décalé sur 3005 pour ne pas conflictuer avec un dev server local :3000
     ports:
       - "3005:3000"
     environment:
-      - FRONTEND_URL=${FRONTEND_URL}
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
-      - DB_NAME=${DB_NAME}
-      - JWT_SECRET=${JWT_SECRET}
-      - SALT_ROUNDS=${SALT_ROUNDS}
-      - BASE_AVATAR_URL=${BASE_AVATAR_URL}
-      - MINIO_ENDPOINT=${MINIO_ENDPOINT}
-      - MINIO_PORT=${MINIO_PORT}
-      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
-      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
-      - AIRFLOW_API_URL=${AIRFLOW_API_URL}
-      - AIRFLOW_USER=${AIRFLOW_USER}
-      - AIRFLOW_PASSWORD=${AIRFLOW_PASSWORD}
-    restart: always
+      APP_PORT: ${APP_PORT}
+      FRONTEND_URL: ${FRONTEND_URL}
+      # DB_HOST pointe vers le nom du service MongoDB dans ce réseau
+      DB_HOST: mongodb
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      JWT_SECRET: ${JWT_SECRET}
+      SALT_ROUNDS: ${SALT_ROUNDS}
+      BASE_AVATAR_URL: ${BASE_AVATAR_URL}
+      MINIO_ENDPOINT: minio
+      MINIO_PORT: ${MINIO_PORT}
+      MINIO_USE_SSL: ${MINIO_USE_SSL}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      minio:
+        condition: service_started
+    networks:
+      - nextrole_local
 
+  # --------------------------------------------------------------------
+  # FRONTEND REACT / NGINX
+  # --------------------------------------------------------------------
   frontend:
     build:
       context: ./frontend
-      args:
-        - VITE_BACKEND_URI=${VITE_BACKEND_URI}
+    environment:
+      VITE_BACKEND_URI: ${VITE_BACKEND_URI}
     container_name: nextrole_frontend
+    restart: unless-stopped
     ports:
-      # Mappe le port Nginx (80) sur le 5174 du host pour éviter les conflits
+      # Port décalé sur 5174 pour ne pas conflictuer avec `npm run dev` :5173
       - "5174:80"
     depends_on:
       - backend
-    restart: always
+    networks:
+      - nextrole_local
 
-  # --- DATA LAKE INFRASTRUCTURE ---
+  # --------------------------------------------------------------------
+  # DATA LAKE — MinIO (S3-compatible)
+  # --------------------------------------------------------------------
   minio:
     image: minio/minio:latest
     container_name: nextrole_minio
+    restart: unless-stopped
+    command: server /data --console-address ":${MINIO_CONSOLE_PORT}"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
     ports:
       - "${MINIO_PORT}:9000"
       - "${MINIO_CONSOLE_PORT}:9001"
-    environment:
-      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
-      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
-    command: server /data --console-address ":${MINIO_CONSOLE_PORT}"
     volumes:
       - minio_data:/data
-    restart: always
+    networks:
+      - nextrole_local
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
 
+  # --------------------------------------------------------------------
+  # MÉTADONNÉES AIRFLOW — PostgreSQL
+  # --------------------------------------------------------------------
   postgres:
-    image: postgres:13
+    image: postgres:15-alpine
     container_name: nextrole_postgres
+    restart: unless-stopped
+    ports:
+      - "${AIRFLOW_DB_PORT}:5432"
     environment:
-      - POSTGRES_USER=airflow
-      - POSTGRES_PASSWORD=airflow
-      - POSTGRES_DB=airflow
+      POSTGRES_DB: ${AIRFLOW_DB_NAME}
+      POSTGRES_USER: ${AIRFLOW_DB_USER}
+      POSTGRES_PASSWORD: ${AIRFLOW_DB_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    restart: always
+    networks:
+      - nextrole_local
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${AIRFLOW_DB_USER} -d ${AIRFLOW_DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  # --- AIRFLOW ---
+  # --------------------------------------------------------------------
+  # AIRFLOW — Configuration commune (Anchors)
+  # --------------------------------------------------------------------
+  x-airflow-common: &airflow-common
+    build: ./datalake/airflow
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      # Chaîne de connexion PostgreSQL
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${AIRFLOW_DB_USER}:${AIRFLOW_DB_PASSWORD}@postgres:5432/${AIRFLOW_DB_NAME}
+      AIRFLOW__WEBSERVER__SECRET_KEY: ${JWT_SECRET}
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__WEBSERVER__EXPOSE_CONFIG: "false"
+      # Auto-provisioning de l'utilisateur admin (Airflow 3.0)
+      _AIRFLOW_WWW_USER_USERNAME: ${AIRFLOW_ADMIN_USER}
+      _AIRFLOW_WWW_USER_PASSWORD: ${AIRFLOW_ADMIN_PASSWORD}
+      _AIRFLOW_WWW_USER_CREATE_IF_NOT_EXISTS: "true"
+      AIRFLOW__WEBSERVER__RBAC: "true"
+      # Variables OCR Azure
+      AZURE_OCR_ENDPOINT: ${AZURE_OCR_ENDPOINT}
+      AZURE_OCR_KEY: ${AZURE_OCR_KEY}
+      AZURE_OCR_MODEL: ${AZURE_OCR_MODEL}
+      # Accès MinIO depuis les DAGs
+      MINIO_ENDPOINT: minio
+      MINIO_PORT: ${MINIO_PORT}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      # Accès MongoDB depuis les DAGs
+      DB_HOST: mongodb
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+    volumes:
+      - ./datalake/airflow/dags:/opt/airflow/dags
+      - ./datalake/airflow/logs:/opt/airflow/logs
+      - ./datalake/airflow/plugins:/opt/airflow/plugins
+      - airflow_logs:/opt/airflow/logs
+    networks:
+      - nextrole_local
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      minio:
+        condition: service_started
+
+  # Initialisation d'Airflow (Migration DB + Création User)
+  airflow-init:
+    <<: *airflow-common
+    container_name: nextrole_airflow_init
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - |
+        airflow db migrate
+        echo "Airflow DB migration completed"
+
+  # Webserver (Interface graphique / API Server in Airflow 3)
   airflow-webserver:
-    build:
-      context: ./datalake/airflow
-      dockerfile: Dockerfile
+    <<: *airflow-common
     container_name: nextrole_airflow_webserver
-    depends_on:
-      - postgres
-    environment:
-      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=${AIRFLOW_DATABASE_SQL_ALCHEMY_CONN}
-      - AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=true
-      - AIRFLOW__CORE__LOAD_EXAMPLES=false
-      - _AIRFLOW_DB_MIGRATE=true
-      - _AIRFLOW_WWW_USER_CREATE=true
-      - _AIRFLOW_WWW_USER_USERNAME=${AIRFLOW_USER}
-      - _AIRFLOW_WWW_USER_PASSWORD=${AIRFLOW_PASSWORD}
-      # Secrets pour les tasks Python (Azure, MinIO, Mongo)
-      - AZURE_OCR_ENDPOINT=${AZURE_OCR_ENDPOINT}
-      - AZURE_OCR_KEY=${AZURE_OCR_KEY}
-      - MINIO_ENDPOINT=${MINIO_ENDPOINT}
-      - MINIO_PORT=${MINIO_PORT}
-      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
-      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
-      - DB_NAME=${DB_NAME}
-    ports:
-      - "8080:8080"
-    volumes:
-      - ./datalake/airflow/dags:/opt/airflow/dags
-      - ./datalake/airflow/logs:/opt/airflow/logs
-    # Airflow 3 : webserver = api-server (nouveau nom de la commande)
     command: api-server
-    restart: always
-
-  airflow-scheduler:
-    build:
-      context: ./datalake/airflow
-      dockerfile: Dockerfile
-    container_name: nextrole_airflow_scheduler
+    ports:
+      - "${AIRFLOW_PORT}:8080"
     depends_on:
-      - postgres
-      - airflow-webserver
-    environment:
-      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
-      - AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=true
-      - AIRFLOW__CORE__LOAD_EXAMPLES=false
-      - AZURE_OCR_ENDPOINT=${AZURE_OCR_ENDPOINT}
-      - AZURE_OCR_KEY=${AZURE_OCR_KEY}
-      - MINIO_ENDPOINT=${MINIO_ENDPOINT}
-      - MINIO_PORT=${MINIO_PORT}
-      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
-      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
-      - DB_NAME=${DB_NAME}
-    volumes:
-      - ./datalake/airflow/dags:/opt/airflow/dags
-      - ./datalake/airflow/logs:/opt/airflow/logs
-    command: scheduler
-    restart: always
+      airflow-init:
+        condition: service_completed_successfully
 
+  # Scheduler (Exécution des DAGs)
+  airflow-scheduler:
+    <<: *airflow-common
+    container_name: nextrole_airflow_scheduler
+    command: scheduler
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+
+# ======================================================================
+# VOLUMES PERSISTANTS (locaux uniquement)
+# ======================================================================
 volumes:
+  mongodb_data:
+    driver: local
   minio_data:
+    driver: local
   postgres_data:
+    driver: local
+  airflow_logs:
+    driver: local
+
+# ======================================================================
+# RÉSEAU INTERNE (local uniquement)
+# ======================================================================
+networks:
+  nextrole_local:
+    driver: bridge

@@ -16,7 +16,7 @@ const initializeBuckets = async (retries = 5, delay = 3000) => {
       for (const bucket of buckets) {
         const exists = await minioClient.bucketExists(bucket);
         if (!exists) {
-          await minioClient.makeBucket(bucket, 'eu-west-1');
+          await minioClient.makeBucket(bucket, process.env.MINIO_REGION || 'eu-west-1');
           console.log(`[MinIO] Bucket '${bucket}' created.`);
         } else {
           console.log(`[MinIO] Bucket '${bucket}' already exists.`);
